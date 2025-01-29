@@ -1,6 +1,7 @@
 // src/App.tsx
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import Home from './pages/Home'
+import VideoDetail from "./pages/VideoDetail.tsx";
 
 function App() {
     return (
@@ -9,10 +10,10 @@ function App() {
             <Routes>
                 {/* The Home page displays all videos */}
                 <Route path="/" element={<Home />} />
-
+                <Route path="/videos/:id" element={<VideoDetail />} />
                 {/*
           Example additional routes:
-          <Route path="/videos/:id" element={<VideoDetail />} />
+
           <Route path="/about" element={<About />} />
         */}
             </Routes>

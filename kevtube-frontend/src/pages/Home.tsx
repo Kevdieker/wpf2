@@ -1,42 +1,31 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import axios from 'axios';
-import './App.css';  // Add this CSS file for the new styling
+import '../App.css'; // Assuming CSS is outside "pages" folder
 
-interface Comment {
-    _id: string;
-    userId: string;
-    name: string;
-    email: string;
-    comment: string;
-    date: string;
-}
-
-interface Video {
-    _id: string;
+interface VideoSummary {
+    id: string;
     title: string;
-    transcript: string;
-    filePath: string;
-    uploadDate: string;
+    videoUrl: string;
     likes: number;
-    comments: Comment[];
+    commentCount: number;
 }
 
-const App: React.FC = () => {
-    const [videos, setVideos] = useState<Video[]>([]);
+const Home: React.FC = () => {
+    const [videos, setVideos] = useState<VideoSummary[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
 
-    const API_URL = 'http://localhost:8008/videos';
+    const API_URL = 'http://localhost:8008/videos/summary';
 
-    // Fetch videos from the API
     useEffect(() => {
         const fetchVideos = async () => {
             try {
-                const response = await axios.get<Video[]>(API_URL);
-                setVideos(response.data); // Set videos to state
+                const response = await axios.get<VideoSummary[]>(API_URL);
+                setVideos(response.data);
             } catch (error) {
                 console.error('Error fetching videos:', error);
             } finally {
-                setLoading(false); // End loading
+                setLoading(false);
             }
         };
 
@@ -48,40 +37,24 @@ const App: React.FC = () => {
             <header className="App-header">
                 <h1>KevTube</h1>
                 {loading ? (
-                    <p>Videos are loading...</p>
+                    <p>Loading videos...</p>
                 ) : (
                     <div className="video-list">
                         {videos.length > 0 ? (
                             videos.map((video) => (
-                                <div key={video._id} className="video-item">
+                                <Link to={`/videos/${video.id}`} key={video.id} className="video-item">
                                     <h2 className="video-title">{video.title}</h2>
-                                    <p className="video-transcript">{video.transcript}</p>
                                     <div className="video-info">
                                         <p>Likes: {video.likes}</p>
-                                        <p>Uploaded: {new Date(video.uploadDate).toLocaleDateString()}</p>
+                                        <p>Comments: {video.commentCount}</p>
                                     </div>
-
                                     <div className="video-player">
                                         <video controls width="100%">
-                                            <source src={`http://localhost:8008/${video.filePath}`} type="video/mp4" />
+                                            <source src={video.videoUrl} type="video/mp4" />
                                             Your browser does not support the video tag.
                                         </video>
                                     </div>
-
-                                    <div className="comments-section">
-                                        <h3>Comments:</h3>
-                                        {video.comments.length > 0 ? (
-                                            video.comments.map((comment) => (
-                                                <div key={comment._id} className="comment-item">
-                                                    <p><strong>{comment.name}</strong> ({comment.email})</p>
-                                                    <p>{comment.comment}</p>
-                                                </div>
-                                            ))
-                                        ) : (
-                                            <p>No comments yet.</p>
-                                        )}
-                                    </div>
-                                </div>
+                                </Link>
                             ))
                         ) : (
                             <p>No videos found.</p>
@@ -93,4 +66,4 @@ const App: React.FC = () => {
     );
 };
 
-export default App;
+export default Home;
