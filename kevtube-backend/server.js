@@ -12,6 +12,9 @@ dotenv.config();
 const app = express();
 app.use(cors())
 
+app.use(bodyParser.json());
+
+
 
 const MONGODB_URI = 'mongodb+srv://kevinkerblkk:test@cluster0.olhej.mongodb.net/?retryWrites=true&w=majority&appName=kevtube'
 
@@ -197,7 +200,5 @@ app.listen(8008, () => {
     console.log('Server läuft auf Port 3000');
 });
 
-
-app.use(bodyParser.json());
 
 
