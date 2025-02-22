@@ -2,60 +2,40 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import '../styles/App.css';
+import {VideoDto} from "../dto/VideoDTO.ts";
+import {CommentDto} from "../dto/CommentDto.ts";
 
-/**
- * The server has:
- * 1) GET  /video/:id         -> Returns entire video (including comments)
- * 2) POST /video/:id/comment -> Adds a new comment
- *
- * There's NO endpoint GET /video/:id/comments (currently 404).
- * We'll remove the second fetch to /video/:id/comments and rely on the main GET /video/:id.
- *
- * The server might return { message: 'Kommentar erfolgreich hinzugefügt!' }
- * but not an actual comment object — we can generate one on the client side.
- */
-
-interface Comment {
-    _id?: string;
-    userId: string;
-    name?: string;
-    email: string;
-    comment?: string;
-    date?: string;
-}
-
-interface Video {
-    _id: string;
-    title: string;
-    transcript: string;
-    filePath: string;
-    uploadDate: string;
-    likes: number;
-    comments: Comment[];
-}
 
 const VideoDetail: React.FC = () => {
     const { id } = useParams<{ id: string }>();
-    const [video, setVideo] = useState<Video | null>(null);
+    const [video, setVideo] = useState<VideoDto | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const [newComment, setNewComment] = useState<string>('');
-    const [userInfo] = useState<{ name: string; email: string }>({
-        name: 'User',
-        email: 'user@example.com',
-    });
+
+    // ✅ Retrieve or generate a temporary userId
+    useEffect(() => {
+        let storedUserId = localStorage.getItem('userId');
+        if (!storedUserId) {
+            storedUserId = `guest_${Math.random().toString(36).substr(2, 9)}`;
+            localStorage.setItem('userId', storedUserId);
+        }
+    }, []);
+
+    const userId = 1;
+    const userName = localStorage.getItem('userName') || 'Guest User';
 
     const API_URL = `http://localhost:8008/video/${id}`;
 
-    // 1) FETCH VIDEO (with comments) on mount
+    // ✅ Fetch Video Details on Mount
     useEffect(() => {
         const fetchVideoDetails = async () => {
             try {
-                const response = await axios.get<Video>(API_URL);
-                console.log('API Loaded Video:', response.data);
+                const response = await axios.get<VideoDto>(API_URL);
+                console.log('✅ API Loaded Video:', response.data);
                 setVideo(response.data);
             } catch (error) {
-                console.error('Error fetching video details:', error);
+                console.error('❌ Error fetching video details:', error);
                 setError('Failed to load video details.');
             } finally {
                 setLoading(false);
@@ -64,53 +44,48 @@ const VideoDetail: React.FC = () => {
         fetchVideoDetails();
     }, [id]);
 
-    // 2) LIKE VIDEO
+    // ✅ Like Video
     const likeVideo = async () => {
         if (!video) return;
         try {
             const response = await axios.put(`${API_URL}/like`);
-            // The server presumably returns something like { likes: number }
             if (response.data && typeof response.data.likes === 'number') {
                 setVideo((prevVideo) =>
                     prevVideo ? { ...prevVideo, likes: response.data.likes } : prevVideo
                 );
             } else {
-                console.error('Unexpected response for like:', response.data);
+                console.error('❌ Unexpected response for like:', response.data);
             }
         } catch (error) {
-            console.error('Error liking video:', error);
+            console.error('❌ Error liking video:', error);
             setError('Failed to like the video.');
         }
     };
 
-    // 3) SUBMIT COMMENT
+    // ✅ Submit Comment Using DTO
     const submitComment = async () => {
-        console.log('🔵 submitComment() wurde aufgerufen');
         if (!newComment.trim() || !video) return;
+        if (!userId) {
+            console.error('❌ User not logged in – cannot submit comment.');
+            setError('You must be logged in to comment.');
+            return;
+        }
+
+        const commentDto: CommentDto = {
+            userId,
+            content: newComment, // Match DTO structure (not "comment")
+        };
 
         try {
-            console.log('🟠 Sende API-Anfrage an:', `${API_URL}/comment`);
-            const response = await axios.post(`${API_URL}/comment`, {
-                userId: 'user123',
-                name: userInfo.name,
-                email: userInfo.email,
-                comment: newComment,
-            });
-            console.log('🟢 Server-Antwort erhalten:', response.data);
+            const response = await axios.post(`${API_URL}/comment`, commentDto);
 
-            // The server returns something like:
-            // { message: 'Kommentar erfolgreich hinzugefügt!' }
-            // so we'll create the new comment ourselves:
-            const createdComment: Comment = {
-                _id: Math.random().toString(36).substring(2, 10),
-                userId: 'user123',
-                name: userInfo.name,
-                email: userInfo.email,
-                comment: newComment,
-                date: new Date().toISOString(),
+            console.log('🟢 Server Response:', response.data);
+
+            const createdComment: CommentDto = {
+                userId,
+                content: newComment,
             };
 
-            // Add the newly created comment into our state
             setVideo((prevVideo) => {
                 if (!prevVideo) return prevVideo;
                 return { ...prevVideo, comments: [...prevVideo.comments, createdComment] };
@@ -118,7 +93,7 @@ const VideoDetail: React.FC = () => {
 
             setNewComment('');
         } catch (error) {
-            console.error('Error adding comment:', error);
+            console.error('❌ Error adding comment:', error);
             setError('Failed to add comment.');
         }
     };
@@ -126,9 +101,6 @@ const VideoDetail: React.FC = () => {
     if (loading) return <p className="loading-text">Loading video details...</p>;
     if (error) return <p className="error-text">{error}</p>;
     if (!video) return <p className="error-text">Video not found.</p>;
-
-    // Safely render comments array
-    const safeComments = (video.comments || []).filter((c) => c && c.comment);
 
     return (
         <div className="video-detail-container">
@@ -154,15 +126,12 @@ const VideoDetail: React.FC = () => {
             <h2 className="comments-heading" id="comment-section">
                 💬 Comments
             </h2>
-            {safeComments.length > 0 ? (
+            {video.comments.length > 0 ? (
                 <ul className="comment-list">
-                    {safeComments.map((comment, index) => (
-                        <li key={comment._id || index} className="comment-item">
+                    {video.comments.map((comment, index) => (
+                        <li key={index} className="comment-item">
                             <p>
-                                <strong>{comment.name || 'Anonymous'}:</strong> {comment.comment}
-                            </p>
-                            <p className="comment-date">
-                                {comment.date ? new Date(comment.date).toLocaleString() : 'Unknown date'}
+                                <strong>{userName || 'Anonymous'}:</strong> {comment.content}
                             </p>
                         </li>
                     ))}
@@ -172,12 +141,12 @@ const VideoDetail: React.FC = () => {
             )}
 
             <div className="add-comment-section">
-        <textarea
-            value={newComment}
-            onChange={(e) => setNewComment(e.target.value)}
-            placeholder="Add your comment..."
-            rows={3}
-        />
+                <textarea
+                    value={newComment}
+                    onChange={(e) => setNewComment(e.target.value)}
+                    placeholder="Add your comment..."
+                    rows={3}
+                />
                 <button className="add-comment-btn" onClick={submitComment} disabled={!newComment.trim()}>
                     Post Comment
                 </button>

@@ -7,6 +7,7 @@ interface VideoSummary {
     id: string;
     title: string;
     videoUrl: string;
+    thumbnailUrl: string;
     likes: number;
     commentCount: number;
 }
@@ -15,7 +16,7 @@ const Home: React.FC = () => {
     const [videos, setVideos] = useState<VideoSummary[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
 
-    const API_URL = 'http://localhost:8008/videos/summary';
+    const API_URL = 'http://localhost:8008/videos';
 
     useEffect(() => {
         const fetchVideos = async () => {
@@ -43,16 +44,13 @@ const Home: React.FC = () => {
                         {videos.length > 0 ? (
                             videos.map((video) => (
                                 <Link to={`/videos/${video.id}`} key={video.id} className="video-item">
+                                    <div className="thumbnail-container">
+                                        <img src={video.thumbnailUrl} alt={video.title} className="video-thumbnail" />
+                                    </div>
                                     <h2 className="video-title">{video.title}</h2>
                                     <div className="video-info">
-                                        <p>Likes: {video.likes}</p>
-                                        <p>Comments: {video.commentCount}</p>
-                                    </div>
-                                    <div className="video-player">
-                                        <video controls width="100%">
-                                            <source src={video.videoUrl} type="video/mp4" />
-                                            Your browser does not support the video tag.
-                                        </video>
+                                        <p>👍 {video.likes} Likes</p>
+                                        <p>💬 {video.commentCount} Comments</p>
                                     </div>
                                 </Link>
                             ))

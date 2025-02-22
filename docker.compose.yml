@@ -1,0 +1,10 @@
+services:
+  kevtube-db:
+    image: postgres
+    restart: always
+    ports:
+      - '5432:5432'
+    environment:
+      POSTGRES_DB: video
+      POSTGRES_USER: _username_
+      POSTGRES_PASSWORD: _password_
