@@ -1,4 +1,65 @@
 [
-  { "id": 1, "username": "Bot_1", "email": "bot1@example.com", "password": "secure123" },
-  { "id": 2, "username": "Bot_2", "email": "bot2@example.com", "password": "secure123" }
+  {
+    "id": 1,
+    "username": "Bot_1",
+    "email": "bot1@example.com",
+    "password": "secure123",
+    "active": true
+  },
+  {
+    "id": 2,
+    "username": "Bot_2",
+    "email": "bot2@example.com",
+    "password": "secure123",
+    "active": true
+  },
+  {
+    "id": 3,
+    "username": "Bot_3",
+    "email": "bot3@example.com",
+    "password": "secure123",
+    "active": true
+  },
+  {
+    "id": 4,
+    "username": "Bot_4",
+    "email": "bot4@example.com",
+    "password": "secure123",
+    "active": true
+  },
+  {
+    "id": 5,
+    "username": "Bot_5",
+    "email": "bot5@example.com",
+    "password": "secure123",
+    "active": true
+  },
+  {
+    "id": 6,
+    "username": "Bot_6",
+    "email": "bot6@example.com",
+    "password": "secure123",
+    "active": true
+  },
+  {
+    "id": 7,
+    "username": "Bot_7",
+    "email": "bot7@example.com",
+    "password": "secure123",
+    "active": true
+  },
+  {
+    "id": 8,
+    "username": "Bot_8",
+    "email": "bot8@example.com",
+    "password": "secure123",
+    "active": true
+  },
+  {
+    "id": 9,
+    "username": "Bot_9",
+    "email": "bot9@example.com",
+    "password": "secure123",
+    "active": true
+  }
 ]
