@@ -74,6 +74,45 @@ KevTube ist eine Video-Plattform, die es Benutzern ermöglicht, vordefinierte Vi
    ```bash
    git clone https://github.com/dein-repo/kevtube.git
    cd kevtube
-1. **Depedencies installieren**
-    ```bash
-   npm install
+
+## How to install
+
+### Requirements
+
+- node.js
+- npm
+- nx-console (Webstorm / IntelliJ / VSCode Plugin)
+- git
+
+### Install
+
+- Run `npm install` to install all dependencies
+
+### Set up the Database
+
+The project uses a PostgreSQL database. To set up the database run the following command (Docker Desktop must be running):
+
+```bash
+docker-compose -f 'docker.compose.yml' up -d
+```
+
+This will start the PostgreSQL databases on port 5432. The databases are used for the kevtube-videoplattform.
+
+Change to Kevtube-backend
+
+```bash
+cd /kevtube-backend
+```
+Then run the database migration to create the tables:
+
+```bash
+npx prisma migrate dev
+```
+
+#### Generate the Prisma Client
+
+Prisma is used to connect to the database. To generate the prisma clients run the following command:
+
+```bash
+npx prisma generate
+```

@@ -19,10 +19,12 @@ model User {
 model Video {
   id           Int       @id @default(autoincrement())
   title        String
+  description  String?
   transcript   String?
-  filePath     String
+  videoUrl     String?
   thumbnailUrl String?
   uploadDate   DateTime  @default(now())
+  views        Int       @default(0)
   likes        Int       @default(0)
   comments     Comment[]
   user         User      @relation(fields: [userId], references: [id])
