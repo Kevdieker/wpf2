@@ -3,20 +3,20 @@ import { VideoDto } from '../dto/VideoDto';
 import { CommentDto } from '../dto/CommentDto';
 import { exec } from "node:child_process";
 import path from "node:path";
+import {VideoToHomepageDto} from "../dto/VideoToHomepageDto";
 
 export class VideoService {
-    static async getAllVideos(): Promise<VideoDto[]> {
-        const videos = await prisma.video.findMany({
-            include: { comments: true }
-        });
+    static async getAllVideos(): Promise<VideoToHomepageDto[]> {
+        const videos = await prisma.video.findMany();
 
-        return videos.map(video => new VideoDto(
+        return videos.map(video => new VideoToHomepageDto(
             video.id,
             video.title,
             video.filePath,
+           "video.thumbnailUrl",
             video.uploadDate,
-            video.likes,
-            video.comments.map(comment => new CommentDto(comment.userId, comment.content))
+            "username",
+            111212
         ));
     }
 

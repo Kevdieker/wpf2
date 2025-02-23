@@ -16,7 +16,6 @@ export class VideoController {
         try {
             const video = await VideoService.getVideoById(Number(req.params.id));
             if (!video) return res.status(404).send('❌ Video nicht gefunden.');
-
             res.json(video);
         } catch (error) {
             console.error('❌ Error fetching video:', error);

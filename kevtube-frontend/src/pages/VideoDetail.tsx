@@ -23,17 +23,20 @@ const VideoDetail: React.FC = () => {
     const userName = localStorage.getItem('userName') || 'Guest User';
 
     const API_URL = `http://localhost:8008/video/${id}`;
-
-    // ✅ Fetch Video Details on Mount
     useEffect(() => {
         const fetchVideoDetails = async () => {
             try {
                 const response = await axios.get<VideoDto>(API_URL);
+
+                if (!response.data || Object.keys(response.data).length === 0) {
+                    throw new Error("Invalid or empty video data received!");
+                }
+
                 console.log('✅ API Loaded Video:', response.data);
                 setVideo(response.data);
             } catch (error) {
                 console.error('❌ Error fetching video details:', error);
-                setError('Failed to load video details.');
+                setError('Das Video konnte nicht geladen werden.');
             } finally {
                 setLoading(false);
             }
@@ -41,9 +44,11 @@ const VideoDetail: React.FC = () => {
         fetchVideoDetails();
     }, [id]);
 
+
     // ✅ Handle `.m3u8` Streaming with HLS.js
     useEffect(() => {
-        if (video && video.filePath.endsWith('.m3u8')) {
+        if (video && video.filePath && typeof video.filePath === 'string' && video.filePath.endsWith('.m3u8')) {
+
             if (Hls.isSupported() && videoRef.current) {
                 const hls = new Hls();
                 hls.loadSource(`http://localhost:8008/${video.filePath}`);
@@ -120,22 +125,28 @@ const VideoDetail: React.FC = () => {
     if (!video) return <p className="error-text">Video not found.</p>;
 
     return (
+
         <div className="video-detail-container">
+            <header className="video-header">
+                <a href="/" className="logo">KevTube</a>
+                <button className="login-btn">Login</button>
+            </header>
+
             <h1 className="video-title">{video.title}</h1>
             <div className="video-player">
-                <video
-                    ref={videoRef}
-                    id="video-player"
-                    controls
-                    width="100%"
-                    height="auto"
-                >
-                    {video.filePath.endsWith('.m3u8') ? null : (
-                        <source src={`http://localhost:8008/${video.filePath}`} type="video/mp4" />
-                    )}
-                    Your browser does not support the video tag.
-                </video>
+                {video.filePath ? (
+                    <video ref={videoRef} id="video-player" controls width="100%" height="auto">
+                        {video.filePath.endsWith('.m3u8') ? null : (
+                            <source src={`http://localhost:8008/${video.filePath}`} type="video/mp4"/>
+                        )}
+                        Your browser does not support the video tag.
+                    </video>
+                ) : (
+                    <p className="error-text">❌ Kein Video verfügbar</p>
+                )}
             </div>
+
+
             <div className="video-info">
                 <p>
                     <strong>📅 Uploaded:</strong> {new Date(video.uploadDate).toLocaleDateString()}
@@ -143,37 +154,33 @@ const VideoDetail: React.FC = () => {
                 <p>
                     <strong>👍 Likes:</strong> {video.likes}
                 </p>
+                <button className="command-btn like-btn" onClick={likeVideo}>
+                    ❤️ Like ({video.likes})
+                </button>
             </div>
-            <button className="command-btn like-btn" onClick={likeVideo}>
-                ❤️ Like ({video.likes})
-            </button>
 
-            <h2 className="comments-heading" id="comment-section">
-                💬 Comments
-            </h2>
-            {video.comments.length > 0 ? (
-                <ul className="comment-list">
-                    {video.comments.map((comment, index) => (
-                        <li key={index} className="comment-item">
-                            <p>
-                                <strong>{userName || 'Anonymous'}:</strong> {comment.content}
-                            </p>
-                        </li>
-                    ))}
-                </ul>
-            ) : (
-                <p className="no-comments">No comments yet. Be the first to share your thoughts! 💭</p>
-            )}
 
-            <div className="add-comment-section">
+            <div className="comments-section">
+                <h2 className="comments-heading">💬 Comments</h2>
+                {video.comments.length > 0 ? (
+                    <ul className="comment-list">
+                        {video.comments.map((comment, index) => (
+                            <li key={index} className="comment-item">
+                                <p><strong>{userName || 'Anonymous'}:</strong> {comment.content}</p>
+                            </li>
+                        ))}
+                    </ul>
+                ) : (
+                    <p className="no-comments">No comments yet. Be the first to share your thoughts! 💭</p>
+                )}
                 <textarea
                     value={newComment}
                     onChange={(e) => setNewComment(e.target.value)}
                     placeholder="Add your comment..."
                     rows={3}
+                    className="comment-input"
                 />
-                <button className="add-comment-btn" onClick={submitComment} disabled={!newComment.trim()}>
-                    Post Comment
+                <button className="comment-btn" onClick={submitComment} disabled={!newComment.trim()}>Post Comment
                 </button>
             </div>
         </div>

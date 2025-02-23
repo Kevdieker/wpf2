@@ -7,8 +7,8 @@
 
 body {
     font-family: 'Arial', sans-serif;
-    background: linear-gradient(145deg, #6e7dff, #4f5ee1);
-    color: #fff;
+    background: linear-gradient(145deg, #6e7dff, #4f5ee1); /* 🔹 Helles Blau */
+    color: #000;
     overflow-x: hidden;
     height: 100%;
     width: 100%;
@@ -23,190 +23,127 @@ body {
 /* Header */
 .App-header {
     background-color: rgba(0, 0, 0, 0.6);
-    padding: 40px 20px;
+    padding: 20px;
     border-radius: 10px;
     box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3);
-    margin-bottom: 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
 }
 
-h1 {
-    font-size: 3.5rem;
-    color: #ffdd57;
-    font-weight: bold;
-    margin-bottom: 10px;
-}
-
-/* Video List Styles (for Grid Layout) */
-.video-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* Create responsive grid */
-    gap: 30px; /* Space between grid items */
-    justify-items: center; /* Center video items */
-    margin-top: 30px;
-}
-
-.video-item {
-    background: #222;
-    border-radius: 15px;
-    padding: 20px;
-    width: 100%;
-    max-width: 650px;
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.video-item:hover {
-    transform: translateY(-10px);
-    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.5);
-}
-
-.video-title {
+.logo {
     font-size: 2rem;
-    color: #ff69b4;
-    margin-bottom: 10px;
+    color: #9999;
+    font-weight: bold;
+    text-decoration: none;
 }
 
-/* Video Player */
-.video-player {
-    margin: 20px 0;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3);
+.login-btn {
+    font-size: 1rem;
+    padding: 10px 15px;
+    background: #ff5252;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.3s ease;
 }
 
-video {
-    border-radius: 12px;
-    transition: all 0.3s ease;
+.login-btn:hover {
+    background: #ff3333;
 }
 
-video:hover {
-    transform: scale(1.05);
-}
-
-/* Ensure consistency in smaller screens */
-@media (max-width: 768px) {
-    .video-item {
-        width: 100%;
-    }
-    h1 {
-        font-size: 2.5rem;
-    }
-    .video-title {
-        font-size: 1.5rem;
-    }
-}
-/* 🔥 Dark Theme with Neon Accents */
 .video-detail-container {
-    max-width: 1200px; /* Increased the max-width for larger screens */
-    margin: 40px auto;
-    background: linear-gradient(135deg, #1f1b24, #322f3b);
-    padding: 30px;
+    width: 80vw;  /* 🔥 Dynamisch an Bildschirmgröße angepasst */
+    margin: auto;
+    background: #ffff;
+    padding: 20px;
     border-radius: 15px;
     box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.3);
-    color: #ffffff;
-    text-align: center;
-    width: 100%; /* Make sure the container spans the full width */
+    color: #000;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* 🎯 Perfekt mittig */
+    justify-content: center;
 }
 
-/* 🎬 Video Title with Gradient */
-.video-title {
-    font-size: 2.5rem;
-    font-weight: bold;
-    margin-bottom: 20px;
-    background: linear-gradient(90deg, #ff8a00, #e52e71);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
-
-/* 🎥 Full-Screen Video Player (almost) */
+/* 🎬 Video Player Responsive & Mittig */
 .video-player {
-    width: 100%; /* Ensure the player is as wide as its parent container */
-    height: 60vh; /* Adjust the height to fit your design */
+    width: 100%; /* Immer volle Breite innerhalb des Containers */
+    max-width: 1200px; /* 🔥 Maximale Breite für große Monitore */
+    height: auto;
+    aspect-ratio: 16 / 9; /* 📺 Automatische Höhe basierend auf Breite */
     margin: 20px 0;
-    border-radius: 15px;
+    background: black;
+    border-radius: 12px;
     overflow: hidden;
-    box-shadow: 0px 4px 12px rgba(255, 255, 255, 0.2);
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .video-player video {
-    width: 100%; /* Ensure the video takes up the full width of the container */
-    height: 100%; /* Ensure the video takes up the full height of the container */
-    object-fit: cover; /* Maintain aspect ratio while covering the area */
-    border-radius: 15px;
-    box-shadow: 0px 4px 12px rgba(255, 255, 255, 0.2);
-    outline: none;
+    width: 100%;
+    height: 100%;
+    object-fit: contain; /* 🔥 Verhindert Verzerrung */
 }
 
-/* ℹ️ Video Info */
+/* 📊 Video Info - Flexible Anzeige */
 .video-info {
     display: flex;
     justify-content: space-between;
-    padding: 15px;
-    font-size: 1.3rem;
+    align-items: center;
+    width: 100%;
+    max-width: 1200px;
+    font-size: 1.2rem;
     font-weight: bold;
-    margin-top: 15px;
-    background: rgba(255, 255, 255, 0.1);
+    margin-top: 10px;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.9);
     border-radius: 10px;
 }
 
-.highlight {
-    color: #ffcc00;
+/* 📏 Anpassung für kleinere Bildschirme */
+@media (max-width: 768px) {
+    .video-detail-container {
+        width: 95%;
+        padding: 15px;
+    }
+
+    .video-player {
+        width: 100%;
+        aspect-ratio: 16 / 9; /* 🔥 Responsive Höhe */
+    }
+
+    .video-info {
+        flex-direction: column;
+        align-items: flex-start;
+        font-size: 1rem;
+    }
 }
 
-/* ⚡ Commands Section */
-.commands-section {
-    background: rgba(255, 255, 255, 0.1);
-    padding: 20px;
-    border-radius: 12px;
-    margin-top: 30px;
-    text-align: center;
+.video-info .views {
+    color: #555;
 }
 
-.commands-section h2 {
-    font-size: 1.8rem;
-    margin-bottom: 15px;
-    color: #ffcc00;
+.video-info .likes {
+    color: #ff5252;
 }
 
-/* 🎮 Command Buttons */
-.commands-buttons {
-    display: flex;
-    justify-content: center;
-    gap: 15px;
-}
-
-.command-btn {
-    font-size: 1.2rem;
-    padding: 12px 20px;
-    border-radius: 8px;
-    border: none;
-    cursor: pointer;
-    transition: 0.3s ease;
-    font-weight: bold;
-}
-
+/* 🔥 Like Button Rechts */
 .like-btn {
     background: #ff5252;
     color: white;
+    padding: 10px 15px;
+    font-size: 1rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.3s ease;
 }
 
-.comment-btn {
-    background: #4caf50;
-    color: white;
-}
-
-.share-btn {
-    background: #2196f3;
-    color: white;
-}
-
-.save-btn {
-    background: #ff9800;
-    color: white;
-}
-
-.command-btn:hover {
-    filter: brightness(1.2);
+.like-btn:hover {
+    background: #ff3333;
 }
 
 /* 💬 Comments Section */
@@ -214,31 +151,70 @@ video:hover {
     font-size: 1.8rem;
     margin-top: 30px;
     color: #ffcc00;
-}
-
-.comment-list {
-    list-style: none;
-    padding: 0;
-}
-
-.comment-item {
-    background: rgba(255, 255, 255, 0.1);
-    padding: 15px;
-    border-radius: 8px;
-    margin-bottom: 12px;
     text-align: left;
 }
 
-.comment-date {
-    font-size: 0.9rem;
-    color: #ffcc00;
+/* 📩 Comments List - Links Unten */
+.comment-list {
+    list-style: none;
+    padding: 0;
+    margin-top: 10px;
+    text-align: left;
 }
 
-/* ⏳ Loading & Error States */
-.loading-text, .error-text, .no-comments {
-    font-size: 1.3rem;
-    color: #ffcc00;
-    font-weight: bold;
+.comment-item {
+    background: rgba(0, 0, 0, 0.1);
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 8px;
 }
 
+.comment-item strong {
+    color: #333;
+}
 
+/* 📑 Textbox für Kommentare */
+.add-comment-section {
+    margin-top: 20px;
+    text-align: left;
+}
+
+.add-comment-section textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 1rem;
+}
+
+.add-comment-btn {
+    background: #4caf50;
+    color: white;
+    padding: 10px 15px;
+    font-size: 1rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+.add-comment-btn:hover {
+    background: #388e3c;
+}
+
+/* 🎥 Responsive Video */
+@media (max-width: 768px) {
+    .video-player {
+        height: 50vh;
+    }
+
+    .video-info {
+        font-size: 1rem;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .comments-heading {
+        font-size: 1.5rem;
+    }
+}
