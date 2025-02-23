@@ -1,5 +1,5 @@
-import prisma from '../prisma/prismaClient.js'
-import { CommentDto } from '../dto/CommentDto.js';
+import prisma from '../prisma/prismaClient'
+import { CommentDto } from '../dto/CommentDto';
 
 export class CommentService {
     static async addComment(videoId: number, commentData: CommentDto): Promise<CommentDto> {

@@ -1,13 +1,14 @@
 {
   "compilerOptions": {
+    "module": "CommonJS",
     "target": "ES6",
-    "module": "NodeNext",
+    "rootDir": "src",
     "strict": true,
     "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "skipLibCheck": true,
-    "outDir": "dist",
-    "resolveJsonModule": true
+    "allowSyntheticDefaultImports": true
   },
-  "include": ["src"]
+  "ts-node": {
+    "transpileOnly": true,
+    "require": ["tsconfig-paths/register"]
+  }
 }

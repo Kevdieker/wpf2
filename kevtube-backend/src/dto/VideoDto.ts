@@ -1,23 +1,33 @@
-import { CommentDto } from "./CommentDto.js";
+import { CommentDto } from "./CommentDto";
 
 export class VideoDto {
     id: number;
     title: string;
-    transcript?: string;
-    filePath: string;
-    thumbnailUrl?: string;
+    videoUrl: string;
+    thumbnailUrl: string;
     uploadDate: Date;
     likes: number;
     comments: CommentDto[];
 
-    constructor(id: number, title: string, filePath: string, uploadDate: Date, likes: number, comments: CommentDto[], transcript?: string, thumbnailUrl?: string) {
+    constructor(
+        id: number,
+        title: string,
+        filePath: string,
+        uploadDate: Date,
+        likes: number,
+        comments: CommentDto[]
+    ) {
         this.id = id;
         this.title = title;
-        this.filePath = filePath;
+
+        // ✅ Ensure HLS streaming URL is correct
+        this.videoUrl = `http://localhost:8008/videos/${id}/stream.m3u8`;
+
+        // ✅ Generate thumbnail URL
+        this.thumbnailUrl = `http://localhost:8008/thumbnails/${id}.jpg`;
+
         this.uploadDate = uploadDate;
         this.likes = likes;
         this.comments = comments;
-        this.transcript = transcript;
-        this.thumbnailUrl = thumbnailUrl;
     }
 }

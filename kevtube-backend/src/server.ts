@@ -1,11 +1,11 @@
-import express, { Request, Response } from 'express';
+import express from 'express';
 import cors from 'cors';
 import bodyParser from 'body-parser';
 import multer from 'multer';
-import swagger from './swagger/swagger.js';
-import { VideoController } from './controllers/video.controller.js';
-import { CommentController } from './controllers/comment.controller.js';
-import { seedDatabase } from './seed.js';
+import swagger from './swagger/swagger';
+import { VideoController } from './controllers/video.controller';
+import { CommentController } from './controllers/comment.controller';
+import { seedDatabase } from './seed';
 
 const app = express();
 app.use(cors());
@@ -16,7 +16,7 @@ const upload = multer({ dest: 'resources/videos/' });
 // 📌 VIDEO ROUTES
 app.get('/videos', VideoController.getAllVideos);
 app.get('/video/:id', VideoController.getVideoById);
-//app.post('/videos/upload', upload.single('video'), VideoController.uploadVideo);
+app.post('/video/upload', upload.single('video'), VideoController.uploadVideo);
 app.put('/video/:id/like', VideoController.likeVideo);
 
 // 📌 COMMENT ROUTES

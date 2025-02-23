@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
+import Hls from 'hls.js'; // ✅ Import HLS.js
 import '../styles/App.css';
-import {VideoDto} from "../dto/VideoDTO.ts";
-import {CommentDto} from "../dto/CommentDto.ts";
-
+import { VideoDto } from "../dto/VideoDTO.ts";
+import { CommentDto } from "../dto/CommentDto.ts";
 
 const VideoDetail: React.FC = () => {
     const { id } = useParams<{ id: string }>();
@@ -12,17 +12,14 @@ const VideoDetail: React.FC = () => {
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const [newComment, setNewComment] = useState<string>('');
+    const videoRef = useRef<HTMLVideoElement | null>(null); // ✅ Ref for video player
 
-    // ✅ Retrieve or generate a temporary userId
+    // ✅ Always set userId to 6
     useEffect(() => {
-        let storedUserId = localStorage.getItem('userId');
-        if (!storedUserId) {
-            storedUserId = `guest_${Math.random().toString(36).substr(2, 9)}`;
-            localStorage.setItem('userId', storedUserId);
-        }
+        localStorage.setItem('userId', String(6));
     }, []);
 
-    const userId = 1;
+    const userId = Number(localStorage.getItem('userId'));
     const userName = localStorage.getItem('userName') || 'Guest User';
 
     const API_URL = `http://localhost:8008/video/${id}`;
@@ -43,6 +40,26 @@ const VideoDetail: React.FC = () => {
         };
         fetchVideoDetails();
     }, [id]);
+
+    // ✅ Handle `.m3u8` Streaming with HLS.js
+    useEffect(() => {
+        if (video && video.filePath.endsWith('.m3u8')) {
+            if (Hls.isSupported() && videoRef.current) {
+                const hls = new Hls();
+                hls.loadSource(`http://localhost:8008/${video.filePath}`);
+                hls.attachMedia(videoRef.current);
+                hls.on(Hls.Events.MANIFEST_PARSED, () => {
+                    videoRef.current?.play();
+                });
+            } else if (videoRef.current?.canPlayType('application/vnd.apple.mpegurl')) {
+                // ✅ Safari native support for HLS
+                videoRef.current.src = `http://localhost:8008/${video.filePath}`;
+                videoRef.current.addEventListener('loadedmetadata', () => {
+                    videoRef.current?.play();
+                });
+            }
+        }
+    }, [video]);
 
     // ✅ Like Video
     const likeVideo = async () => {
@@ -73,7 +90,7 @@ const VideoDetail: React.FC = () => {
 
         const commentDto: CommentDto = {
             userId,
-            content: newComment, // Match DTO structure (not "comment")
+            content: newComment,
         };
 
         try {
@@ -106,8 +123,16 @@ const VideoDetail: React.FC = () => {
         <div className="video-detail-container">
             <h1 className="video-title">{video.title}</h1>
             <div className="video-player">
-                <video controls>
-                    <source src={`http://localhost:8008/${video.filePath}`} type="video/mp4" />
+                <video
+                    ref={videoRef}
+                    id="video-player"
+                    controls
+                    width="100%"
+                    height="auto"
+                >
+                    {video.filePath.endsWith('.m3u8') ? null : (
+                        <source src={`http://localhost:8008/${video.filePath}`} type="video/mp4" />
+                    )}
                     Your browser does not support the video tag.
                 </video>
             </div>

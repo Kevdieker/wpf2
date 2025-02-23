@@ -1,4 +1,5 @@
-import prisma from './prisma/prismaClient.js';
+import prisma from './prisma/prismaClient'; // Adjusted relative import
+import path from "node:path";
 
 export async function seedDatabase(): Promise<void> {
     try {
@@ -20,22 +21,28 @@ export async function seedDatabase(): Promise<void> {
             console.log("✅ User already exists:", user?.username);
         }
 
-        // 📌 Check if videos exist
+        /* 📌 Check if videos exist
         const videoCount = await prisma.video.count();
-        if (videoCount > 0) {
+        if (videoCount > 1) {
             console.log("✅ Videos already exist. No need to seed.");
             return;
-        }
+        }*/
 
-        // 📌 Create a Sample Video
+        // 📌 Define Correct Video Paths
+        const videoId = 9999; // Static ID for the sample video
+        const videoFolder = path.join(__dirname, "..", "resources", "videos", `${videoId}`);
+        const hlsPath = `videos/${videoId}/stream.m3u8`; // ✅ Direct HLS path
+        const thumbnailPath = `thumbnails/${videoId}.jpg`; // ✅ Thumbnail path
+
+        // 📌 Insert Video Data into DB (WITHOUT MP4 CONVERSION)
         const newVideo = await prisma.video.create({
             data: {
                 title: "Example Video",
                 transcript: "This is a sample transcript.",
-                filePath: "resources/videos/sample.mp4",
-                thumbnailUrl: "resources/thumbnails/sample.jpg",
+                filePath: hlsPath,
+                thumbnailUrl: thumbnailPath,
                 likes: 0,
-                userId: user?.id ?? 1 // If user exists, use its ID
+                userId: user?.id ?? 1
             }
         });
 
