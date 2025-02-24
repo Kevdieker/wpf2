@@ -68,13 +68,6 @@ KevTube ist eine Video-Plattform, die es Benutzern ermöglicht, vordefinierte Vi
 
 ## 🔧 Installation & Setup
 
-### 1️⃣ Backend installieren
-
-1. **Repository klonen**
-   ```bash
-   git clone https://github.com/dein-repo/kevtube.git
-   cd kevtube
-
 ## How to install
 
 ### Requirements
@@ -85,6 +78,8 @@ KevTube ist eine Video-Plattform, die es Benutzern ermöglicht, vordefinierte Vi
 - git
 
 ### Install
+
+Bevor npm install switch to all the front and backends
 
 - Run `npm install` to install all dependencies
 
@@ -101,7 +96,7 @@ This will start the PostgreSQL databases on port 5432. The databases are used fo
 Change to Kevtube-backend
 
 ```bash
-cd /kevtube-backend
+cd ./kevtube-backend
 ```
 Then run the database migration to create the tables:
 
@@ -120,9 +115,6 @@ npx prisma generate
 
 Go in all the front and backends
 
-```bash
-npm run start
-```
 ```bash
 npm run dev
 ```
