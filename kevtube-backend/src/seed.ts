@@ -4,13 +4,11 @@ export async function seedDatabase(): Promise<void> {
     try {
         console.log("🔄 Seeding database...");
 
-        // Optional: Vorhandene Daten löschen
         await prisma.like.deleteMany({});
         await prisma.comment.deleteMany({});
         await prisma.video.deleteMany({});
         await prisma.user.deleteMany({});
 
-        // Definiere 12 Benutzer, einer davon ist Kevin
         const usersData = [
             { username: "kevin", email: "test@test", password: "test" },
             { username: "user1", email: "user1@example.com", password: "password1" },
@@ -33,7 +31,6 @@ export async function seedDatabase(): Promise<void> {
             createdUsers.push(user);
         }
 
-        // Erstelle 10 Videos mit unterschiedlichen Titeln, Beschreibungen und Transkripten
         for (let i = 1; i <= 10; i++) {
             const video = await prisma.video.create({
                 data: {
@@ -45,16 +42,15 @@ export async function seedDatabase(): Promise<void> {
                     uploadDate: new Date(),
                     likes: 0,
                     views: 0,
-                    // Weise dem Video einen Uploader zu (round robin aus den erstellten Benutzern)
                     userId: createdUsers[(i - 1) % createdUsers.length].id
                 }
             });
             console.log(`🎥 Created video ${i}:`, video);
         }
 
-        console.log("✅ Seeding completed.");
+        console.log(" Seeding completed.");
     } catch (error) {
-        console.error("❌ Error seeding database:", error);
+        console.error("Error seeding database:", error);
     }
 }
 

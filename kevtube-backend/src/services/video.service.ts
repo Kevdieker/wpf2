@@ -4,7 +4,7 @@ import { VideoToDetailspageDto } from '../dto/VideoToDetailspageDto';
 import { CommentDto } from '../dto/CommentDto';
 
 export class VideoService {
-    // ✅ Get All Videos for Homepage
+
     static async getAllVideos(): Promise<VideoToHomepageDto[]> {
         const videos = await prisma.video.findMany({
             include: { user: true }
@@ -20,7 +20,6 @@ export class VideoService {
         ));
     }
 
-    // ✅ Get Video by ID and Increment Views
     static async getVideoById(videoId: number, userId: number | null): Promise<VideoToDetailspageDto | null> {
         const video = await prisma.video.update({
             where: { id: videoId },
@@ -53,7 +52,6 @@ export class VideoService {
 
     }
 
-    // ✅ Like a Video (Only Once Per User)
     static async likeVideo(videoId: number, userId: number): Promise<VideoToDetailspageDto> {
         // Check if user has already liked the video
         const existingLike = await prisma.like.findFirst({
@@ -64,10 +62,8 @@ export class VideoService {
             throw new Error('You have already liked this video');
         }
 
-        // Add Like
         await prisma.like.create({ data: { videoId, userId } });
 
-        // Increment like count
         const video = await prisma.video.update({
             where: { id: videoId },
             data: { likes: { increment: 1 } },
@@ -91,7 +87,6 @@ export class VideoService {
         );
     }
 
-    // ✅ Unlike a Video
     static async unlikeVideo(videoId: number, userId: number): Promise<VideoToDetailspageDto> {
         // Prüfe, ob der Benutzer den Like bereits gesetzt hat
         const existingLike = await prisma.like.findFirst({
@@ -131,5 +126,4 @@ export class VideoService {
             video.transcript?? "",
         );
     }
-
 }

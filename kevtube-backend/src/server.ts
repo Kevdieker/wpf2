@@ -13,9 +13,9 @@ import path from "node:path";
 const app = express();
 
 const allowedOrigins = [
-    "http://localhost:5173", // ✅ Frontend
-    "http://localhost:5174", // ✅ Frontend
-    "http://localhost:8888", // ✅ Example: Bot Manager (or another service)
+    "http://localhost:5173",
+    "http://localhost:5174",
+    "http://localhost:8888",
 ];
 
 app.use(cors({
@@ -26,7 +26,7 @@ app.use(cors({
             callback(new Error("CORS not allowed"));
         }
     },
-    credentials: true // ✅ Required for cookies/sessions
+    credentials: true
 }));
 
 app.use(
@@ -39,20 +39,14 @@ app.use(bodyParser.json());
 
 // ✅ Express Session Middleware
 app.use(session({
-    secret: "your-secret-key",
+    secret: "kevtubewpf2",
     resave: false,
     saveUninitialized: true,
-    cookie: { secure: false } // Set to true in production with HTTPS
+    cookie: { secure: false }
 }));
 
-app.use((req, res, next) => {
-    console.log(`[REQUEST] ${req.method} ${req.url}`);
-    console.log("Session:", req.session);
-    next();
-});
-
 seedDatabase().then(() => {
-    console.log("🌱 Database seeding complete. Starting server...");
+    console.log("Database seeding complete. Starting server...");
 })
 // ✅ Use Controllers with Proper Imports
 app.use("/auth", authRoutes);

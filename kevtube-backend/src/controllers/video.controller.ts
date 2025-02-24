@@ -3,12 +3,10 @@ import { VideoService } from '../services/video.service';
 
 export const videoRouter = express.Router();
 
-// ✅ Get all videos
+
 videoRouter.get('/', async (req, res) => {
-    console.log("[VIDEO CONTROLLER] GET /videos called");
     try {
         const videos = await VideoService.getAllVideos();
-        console.log(`[VIDEO CONTROLLER] Returning ${videos.length} videos`);
         res.json(videos);
     } catch (error) {
         console.error("[VIDEO CONTROLLER] Error fetching videos:", error);
@@ -16,7 +14,6 @@ videoRouter.get('/', async (req, res) => {
     }
 });
 
-// ✅ Get video by ID and increment views
 videoRouter.get('/:id', async (req, res) => {
 
     try {
@@ -37,10 +34,7 @@ videoRouter.get('/:id', async (req, res) => {
     }
 });
 
-// ✅ Like a video
 videoRouter.post('/:id/like', async (req, res) => {
-    console.log(`[VIDEO CONTROLLER] POST /videos/${req.params.id}/like called`);
-
     if (!req.session || !req.session.userId) {
         console.warn("[VIDEO CONTROLLER] Unauthorized like request");
         return res.status(401).json({ message: "You must be logged in to like a video" });
@@ -59,10 +53,7 @@ videoRouter.post('/:id/like', async (req, res) => {
     }
 });
 
-// ✅ Unlike a video
 videoRouter.post('/:id/unlike', async (req, res) => {
-    console.log(`[VIDEO CONTROLLER] POST /videos/${req.params.id}/unlike called`);
-
     if (!req.session || !req.session.userId) {
         console.warn("[VIDEO CONTROLLER] Unauthorized unlike request");
         return res.status(401).json({ message: "You must be logged in to unlike a video" });
@@ -73,7 +64,6 @@ videoRouter.post('/:id/unlike', async (req, res) => {
 
     try {
         const updatedVideo = await VideoService.unlikeVideo(videoId, userId);
-        console.log(`[VIDEO CONTROLLER] Video ${videoId} unliked by user ${userId}`);
         res.json(updatedVideo);
     } catch (error: any) {
         console.error(`[VIDEO CONTROLLER] Error unliking video ID ${videoId}:`, error);
@@ -81,6 +71,4 @@ videoRouter.post('/:id/unlike', async (req, res) => {
     }
 });
 
-
-// ✅ Correct export
 export default videoRouter;
