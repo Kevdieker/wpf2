@@ -43,9 +43,7 @@ const VideoDetail: React.FC = () => {
     const handleLogin = async () => {
         const email = prompt("Enter your email:");
         const password = prompt("Enter your password:");
-
         if (!email || !password) return;
-
         try {
             await axios.post(`${API_URL}/auth/login`, { email, password }, { withCredentials: true });
             const response = await axios.get(`${API_URL}/auth/me`, { withCredentials: true });
@@ -110,11 +108,14 @@ const VideoDetail: React.FC = () => {
             {/* Video Title */}
             <h1>{video.title}</h1>
 
+            {/* Zusätzliche Informationen: Beschreibung und Transkript */}
+
+
             {/* Video Player */}
             <div className="video-player">
                 {video.videoUrl ? (
                     <video ref={videoRef} controls width="100%" height="auto">
-                        <source src={video.videoUrl} type="video/mp4" />
+                        <source src={video.videoUrl} type="video/mp4"/>
                     </video>
                 ) : (
                     <p>No video available</p>
@@ -130,12 +131,14 @@ const VideoDetail: React.FC = () => {
             <button className={`like-btn ${video.userHasLiked ? "liked" : ""}`} onClick={toggleLike} disabled={!user}>
                 {video.userHasLiked ? "💔 Unlike" : "❤️ Like"}
             </button>
-
+            <p><strong>Description:</strong> {video.description || "No description available."}</p>
+            <p><strong>Transcript:</strong> {video.transcript || "No transcript available."}</p>
             {/* Comments Section */}
             <h2>💬 Comments</h2>
             {user && (
                 <div className="add-comment-section">
-                    <textarea value={newComment} onChange={(e) => setNewComment(e.target.value)} placeholder="Add your comment..." />
+                    <textarea value={newComment} onChange={(e) => setNewComment(e.target.value)}
+                              placeholder="Add your comment..."/>
                     <button onClick={submitComment} disabled={!newComment.trim()}>Post Comment</button>
                 </div>
             )}

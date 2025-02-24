@@ -33,39 +33,24 @@ export async function seedDatabase(): Promise<void> {
             createdUsers.push(user);
         }
 
-        // Erstes Video: "Example Video"
-        const video1 = await prisma.video.create({
-            data: {
-                title: "Example Video",
-                description: "This is a sample video for testing.",
-                transcript: "This is a sample transcript.",
-                // Direkte URL zur MP4-Datei
-                videoUrl: "http://localhost:8088/resources/videos/input.mp4",
-                // Direkte URL zum Thumbnail
-                thumbnailUrl: "http://localhost:8088/resources/sample.jpg",
-                uploadDate: new Date(),
-                likes: 0,
-                views: 0,
-                userId: createdUsers[0].id // Kevin
-            }
-        });
-        console.log("🎥 Created first video:", video1);
-
-        // Zweites Video: "Second Video"
-        const video2 = await prisma.video.create({
-            data: {
-                title: "Second Video",
-                description: "This is the second sample video.",
-                transcript: "This is the transcript for the second video.",
-                videoUrl: "http://localhost:8088/resources/videos/input.mp4",
-                thumbnailUrl: "http://localhost:8088/resources/sample.jpg",
-                uploadDate: new Date(),
-                likes: 0,
-                views: 0,
-                userId: createdUsers[1].id // user1
-            }
-        });
-        console.log("🎥 Created second video:", video2);
+        // Erstelle 10 Videos mit unterschiedlichen Titeln, Beschreibungen und Transkripten
+        for (let i = 1; i <= 10; i++) {
+            const video = await prisma.video.create({
+                data: {
+                    title: `Sample Video ${i}`,
+                    description: `This is the description for Sample Video ${i}.`,
+                    transcript: `Transcript for Sample Video ${i}: Lorem ipsum dolor sit amet, consectetur adipiscing elit.`,
+                    videoUrl: "http://localhost:8088/resources/videos/input.mp4",  // MP4-URL
+                    thumbnailUrl: "http://localhost:8088/resources/sample.jpg",   // Thumbnail-URL
+                    uploadDate: new Date(),
+                    likes: 0,
+                    views: 0,
+                    // Weise dem Video einen Uploader zu (round robin aus den erstellten Benutzern)
+                    userId: createdUsers[(i - 1) % createdUsers.length].id
+                }
+            });
+            console.log(`🎥 Created video ${i}:`, video);
+        }
 
         console.log("✅ Seeding completed.");
     } catch (error) {
