@@ -24,9 +24,11 @@ class BotManager {
         try {
             const data = fs.readFileSync("bots.json", "utf-8");
             this.bots = JSON.parse(data);
-            // Initialisiere für jeden geladenen Bot einen Cookie Jar
+            // Initialisiere für jeden geladenen Bot einen CookieJar
             for (const bot of this.bots) {
-                this.cookieJars[bot.id] = new CookieJar();
+                if (!this.cookieJars[bot.id]) {
+                    this.cookieJars[bot.id] = new CookieJar();
+                }
             }
             console.log("[BotManager] Bots loaded:", this.bots);
         } catch (error) {
@@ -45,7 +47,7 @@ class BotManager {
         console.log("[BotManager] Log:", logEntry.trim());
     }
 
-    // Hilfsmethode: Liefert einen axios-Client mit dem CookieJar für einen bestimmten Bot
+    // Liefert einen axios-Client mit dem CookieJar für einen bestimmten Bot
     private getClient(botId: number): AxiosInstance {
         if (!this.cookieJars[botId]) {
             this.cookieJars[botId] = new CookieJar();
@@ -53,25 +55,68 @@ class BotManager {
         return wrapper(axios.create({ jar: this.cookieJars[botId], withCredentials: true }));
     }
 
-    // Init Bots: Erzeugt die Bots neu und loggt sie bei KevTube (Port 8088) ein
-    async initBots(count: number) {
-        this.bots = [];
-        this.cookieJars = {};
-        for (let i = 0; i < count; i++) {
-            const bot: Bot = {
-                id: i + 1,
-                username: i === 0 ? "kevin" : `user${i}`,
-                email: i === 0 ? "test@test" : `user${i}@example.com`,
-                password: i === 0 ? "test" : `password${i}`,
-                active: false,
-            };
-            this.bots.push(bot);
-            this.cookieJars[bot.id] = new CookieJar();
-        }
-        this.saveBots();
+    /**
+     * InitBots:
+     * - Lädt zuerst vorhandene Bots aus bots.json.
+     * - Wenn die vorhandene Anzahl kleiner als 'requestedCount' ist,
+     *   werden neue Bots über den Registration-Endpoint erstellt.
+     * - Danach werden die ersten 'requestedCount' Bots für das Login verwendet.
+     */
+    async initBots(requestedCount: number) {
+        // Lade vorhandene Bots
+        this.loadBots();
+        let availableCount = this.bots.length;
+        console.log(`[BotManager] Available bots in file: ${availableCount}`);
 
-        // Login für jeden Bot bei KevTube (Port 8088)
-        for (const bot of this.bots) {
+        // Falls nicht genug Bots vorhanden sind, erstelle zusätzliche Bots
+        if (availableCount < requestedCount) {
+            const botsToCreate = requestedCount - availableCount;
+            console.log(`[BotManager] Need to create ${botsToCreate} new bots via registration.`);
+            for (let i = 0; i < botsToCreate; i++) {
+                const newId = availableCount + i + 1;
+                // Generiere eindeutige Daten für den neuen Bot
+                const newBotData: Bot = {
+                    id: newId,
+                    username: `bot${newId}`,
+                    email: `bot${newId}@example.com`,
+                    password: `password${newId}`,
+                    active: false,
+                };
+
+                // Versuche, den Bot über den Registrierung-Endpoint zu registrieren
+                try {
+                    // Nutze einen temporären axios-Client ohne CookieJar, da noch kein Konto existiert
+                    const regResponse = await axios.post(
+                        "http://localhost:8088/auth/register",
+                        {
+                            username: newBotData.username,
+                            email: newBotData.email,
+                            password: newBotData.password,
+                        },
+                        { withCredentials: true }
+                    );
+                    console.log(`[BotManager] Registered new bot: ${newBotData.username}`, regResponse.data);
+                    // Füge den neuen Bot zur Liste hinzu
+                    this.bots.push(newBotData);
+                    this.cookieJars[newBotData.id] = new CookieJar();
+                } catch (error: any) {
+                    console.error(`[BotManager] Failed to register bot ${newBotData.username}:`, error.response?.data || error.message);
+                    // Falls Registrierung fehlschlägt, kannst du den Bot trotzdem hinzufügen (evtl. mit active=false)
+                    this.bots.push(newBotData);
+                    this.cookieJars[newBotData.id] = new CookieJar();
+                }
+            }
+            // Aktualisiere die Anzahl
+            availableCount = this.bots.length;
+            this.saveBots();
+        }
+
+        // Verwende die ersten 'requestedCount' Bots
+        const botsToInit = this.bots.slice(0, requestedCount);
+        console.log(`[BotManager] Initializing ${botsToInit.length} bots...`);
+
+        // Für jeden Bot Login durchführen
+        for (const bot of botsToInit) {
             try {
                 const client = this.getClient(bot.id);
                 const response = await client.post(
@@ -87,6 +132,7 @@ class BotManager {
                 bot.active = false;
             }
         }
+        // Aktualisiere die bots.json (ggf. werden jetzt mehr als requestedCount Bots gespeichert)
         this.saveBots();
     }
 
@@ -104,7 +150,6 @@ class BotManager {
         console.log(`[BotManager] 👍 ${bot.username} liking video ${videoId}...`);
         try {
             const client = this.getClient(bot.id);
-            // POST an /videos/:id/like
             await client.post(`http://localhost:8088/videos/${videoId}/like`, {});
             this.logActivity(`${bot.username} liked video ${videoId}`);
         } catch (error: any) {
@@ -156,7 +201,6 @@ class BotManager {
         }
         const client = this.getClient(bot.id);
         if (!bot.active) {
-            // Bot aktivieren: Login
             try {
                 const response = await client.post("http://localhost:8088/auth/login", { email: bot.email, password: bot.password });
                 console.log(`[BotManager] 🔐 ${bot.username} login response (toggle):`, response.data);
@@ -167,7 +211,6 @@ class BotManager {
                 this.logActivity(`${bot.username} failed to login: ${error.response?.data || error.message}`);
             }
         } else {
-            // Bot deaktivieren: Logout
             try {
                 const response = await client.post("http://localhost:8088/auth/logout", {});
                 console.log(`[BotManager] 🔓 ${bot.username} logout response (toggle):`, response.data);
