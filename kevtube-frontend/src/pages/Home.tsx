@@ -16,8 +16,9 @@ interface VideoSummary {
 const Home: React.FC = () => {
     const [videos, setVideos] = useState<VideoSummary[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
+    const [user, setUser] = useState<{ username: string } | null>(null); // ✅ Track user
 
-    const API_URL = 'http://localhost:8008/videos';
+    const API_URL = 'http://localhost:8088/videos';
 
     useEffect(() => {
         const fetchVideos = async () => {
@@ -34,11 +35,48 @@ const Home: React.FC = () => {
         fetchVideos();
     }, []);
 
+    // ✅ Check if user is logged in
+    useEffect(() => {
+        axios.get('http://localhost:8088/auth/me', { withCredentials: true })
+            .then(response => {
+                if (response.data?.username) {
+                    setUser({ username: response.data.username });
+                }
+            })
+            .catch(() => setUser(null));
+    }, []);
+
+    // ✅ Login function
+    const handleLogin = async () => {
+        const email = prompt("Enter your email:");
+        const password = prompt("Enter your password:");
+
+        if (!email || !password) return;
+
+        try {
+            await axios.post('http://localhost:8088/auth/login', { email, password }, { withCredentials: true });
+            const response = await axios.get('http://localhost:8088/auth/me', { withCredentials: true });
+            setUser(response.data); // ✅ Store user data
+        } catch (error) {
+            alert("Login failed! ❌");
+        }
+    };
+
+    // ✅ Logout function
+    const handleLogout = async () => {
+        await axios.post('http://localhost:8088/auth/logout', {}, { withCredentials: true });
+        setUser(null); // ✅ Clear user data
+    };
+
     return (
         <div className="App">
             <header className="App-header">
                 <Link to="/" className="logo">KevTube</Link>
-                <button className="login-btn">Login</button>
+                {user ? (
+                    <button className="logout-btn" onClick={handleLogout}>Logout ({user.username})</button>
+                ) : (
+                    <button className="login-btn" onClick={handleLogin}>Login</button>
+                )}
             </header>
 
             {/* 🌟 Video-Grid Container */}

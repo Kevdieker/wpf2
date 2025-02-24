@@ -1,36 +1,56 @@
-import express from 'express';
-import cors from 'cors';
-import bodyParser from 'body-parser';
-import multer from 'multer';
-import swagger from './swagger/swagger';
-import { VideoController } from './controllers/video.controller';
-import { CommentController } from './controllers/comment.controller';
-import { seedDatabase } from './seed';
+import session from "express-session";
+import express from "express";
+import cors from "cors";
+import bodyParser from "body-parser";
+
+// ✅ Import controllers correctly
+import authRoutes from "./controllers/auth.controller";
+import videoRoutes from "./controllers/video.controller";
+import commentRoutes from "./controllers/comment.controller";
+import {seedDatabase} from "./seed";
 
 const app = express();
-app.use(cors());
+
+const allowedOrigins = [
+    "http://localhost:5173", // ✅ Frontend
+    "http://localhost:5174", // ✅ Frontend
+    "http://localhost:3000", // ✅ Example: Bot Manager (or another service)
+];
+
+app.use(cors({
+    origin: (origin, callback) => {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error("CORS not allowed"));
+        }
+    },
+    credentials: true // ✅ Required for cookies/sessions
+}));
+
+// ✅ Body Parser Middleware
 app.use(bodyParser.json());
 
-const upload = multer({ dest: 'resources/videos/' });
+// ✅ Express Session Middleware
+app.use(session({
+    secret: "your-secret-key",
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: false } // Set to true in production with HTTPS
+}));
 
-// 📌 VIDEO ROUTES
-app.get('/videos', VideoController.getAllVideos);
-app.get('/video/:id', VideoController.getVideoById);
-app.post('/video/upload', upload.single('video'), VideoController.uploadVideo);
-app.put('/video/:id/like', VideoController.likeVideo);
-
-// 📌 COMMENT ROUTES
-app.post('/video/:id/comment', CommentController.addComment);
-app.get('/video/:id/comments', CommentController.getCommentsByVideo);
-
-// 📌 Swagger API Docs
-swagger(app);
-
-// 📌 Start Server
-const PORT = process.env.PORT ? Number(process.env.PORT) : 8008;
-app.listen(PORT, async () => {
-    console.log(`🚀 Server läuft auf Port ${PORT}`);
-
-    // 📌 Seed Database (if needed)
-    await seedDatabase();
+app.use((req, res, next) => {
+    console.log(`[REQUEST] ${req.method} ${req.url}`);
+    console.log("Session:", req.session);
+    next();
 });
+
+seedDatabase().then(() => {
+    console.log("🌱 Database seeding complete. Starting server...");
+})
+// ✅ Use Controllers with Proper Imports
+app.use("/auth", authRoutes);
+app.use("/videos", videoRoutes);
+app.use("/comments", commentRoutes);
+
+app.listen(8088, () => console.log("🚀 Server running on port 8088"));

@@ -1,52 +1,32 @@
+import express from 'express';
 import { CommentService } from '../services/comment.service';
-import { Request, Response } from 'express';
-import { CommentDto } from '../dto/CommentDto';
 
-export class CommentController {
-    static async addComment(req: Request, res: Response) {
-        try {
-            console.log("📥 Received Comment Data:", req.body); // ✅ Log incoming request
+export const commentRouter = express.Router();
 
-            // Validate request body
-            const { userId, content } = req.body;
-
-            if (!userId || !content) {
-                console.log("❌ Missing required fields:", { userId, content });
-                return res.status(400).json({ error: 'userId and content are required' });
-            }
-
-            // Convert userId to a number (if needed)
-            const numericUserId = Number(userId);
-            if (isNaN(numericUserId)) {
-                console.log("❌ Invalid userId (must be an integer):", userId);
-                return res.status(400).json({ error: 'Invalid userId format' });
-            }
-
-            const commentData = new CommentDto(numericUserId, content);
-            console.log("📤 Sending to CommentService:", commentData);
-
-            const newComment = await CommentService.addComment(Number(req.params.id), commentData);
-
-            console.log("✅ Comment successfully created:", newComment);
-            res.status(201).json(new CommentDto(newComment.userId, newComment.content));
-        } catch (error) {
-            console.error('❌ Error adding comment:', error);
-            res.status(500).send('❌ Fehler beim Hinzufügen des Kommentars.');
-        }
+// ✅ Endpoint zum Hinzufügen eines Kommentars
+commentRouter.post('/', async (req, res) => {
+    if (!req.session || !req.session.userId) {
+        console.error("[COMMENT CONTROLLER] Unauthorized comment request");
+        return res.status(401).json({ message: "You must be logged in to comment" });
     }
 
-    static async getCommentsByVideo(req: Request, res: Response) {
-        try {
-            console.log("📥 Fetching comments for video ID:", req.params.id);
-            const comments = await CommentService.getCommentsByVideo(Number(req.params.id));
+    const { videoId, content } = req.body;
+    const userId = req.session.userId;
+    console.log(`[COMMENT CONTROLLER] Received comment request: videoId=${videoId}, userId=${userId}, content="${content}"`);
 
-            console.log("📤 Returning comments:", comments);
-            const commentDtos = comments.map(comment => new CommentDto(comment.userId, comment.content));
-            res.json(commentDtos);
-        } catch (error) {
-            console.error('❌ Fehler beim Abrufen der Kommentare:', error);
-            res.status(500).send('❌ Fehler beim Abrufen der Kommentare.');
-        }
+    if (!videoId || !content) {
+        console.error("[COMMENT CONTROLLER] Missing videoId or content in request body");
+        return res.status(400).json({ message: "Missing videoId or content" });
     }
-}
 
+    try {
+        const commentDto = await CommentService.addComment(Number(videoId), userId, content);
+        console.log("[COMMENT CONTROLLER] Comment added successfully:", commentDto);
+        res.json(commentDto);
+    } catch (error: any) {
+        console.error("[COMMENT CONTROLLER] Error adding comment:", error);
+        res.status(500).json({ message: "Error adding comment", error: error.message });
+    }
+});
+
+export default commentRouter;

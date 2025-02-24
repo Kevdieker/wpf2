@@ -3,46 +3,47 @@ import path from "node:path";
 
 export async function seedDatabase(): Promise<void> {
     try {
-        // 📌 Check if a User already exists
-        const userCount = await prisma.user.count();
-        let user;
+        console.log("🔄 Seeding database...");
 
-        if (userCount === 0) {
+        // 📌 Ensure at least one user exists (Admin)
+        let user = await prisma.user.findFirst();
+        if (!user) {
             user = await prisma.user.create({
                 data: {
                     username: "admin",
                     email: "admin@example.com",
-                    password: "securepassword123" // ✅ Later, hash this password!
+                    password: "securepassword123" // ✅ No hashing (for dev)
                 }
             });
-            console.log("👤 ✅ User created:", user);
+            console.log("👤 ✅ Admin User created:", user);
         } else {
-            user = await prisma.user.findFirst();
-            console.log("✅ User already exists:", user?.username);
+            console.log("✅ User already exists:", user.username);
         }
 
-        /* 📌 Check if videos exist
-        const videoCount = await prisma.video.count();
-        if (videoCount > 1) {
+        // 📌 Check if at least one video exists
+        const existingVideo = await prisma.video.findFirst();
+        if (existingVideo) {
             console.log("✅ Videos already exist. No need to seed.");
             return;
-        }*/
+        }
 
-        // 📌 Define Correct Video Paths
+        // 📌 Define Video Paths
         const videoId = 9999; // Static ID for the sample video
-        const videoFolder = path.join(__dirname, "..", "resources", "videos", `${videoId}`);
         const hlsPath = `videos/${videoId}/stream.m3u8`; // ✅ Direct HLS path
         const thumbnailPath = `thumbnails/${videoId}.jpg`; // ✅ Thumbnail path
 
-        // 📌 Insert Video Data into DB (WITHOUT MP4 CONVERSION)
+        // 📌 Insert Video Data into DB (Assigned to Admin)
         const newVideo = await prisma.video.create({
             data: {
                 title: "Example Video",
+                description: "This is a sample video for testing.",
                 transcript: "This is a sample transcript.",
-                filePath: hlsPath,
+                videoUrl: hlsPath,
                 thumbnailUrl: thumbnailPath,
+                uploadDate: new Date(),
                 likes: 0,
-                userId: user?.id ?? 1
+                views: 0, // ✅ Initialize with 0 views
+                userId: user.id // ✅ Assign to first user (Admin)
             }
         });
 

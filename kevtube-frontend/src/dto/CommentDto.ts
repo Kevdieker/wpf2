@@ -1,4 +1,5 @@
 export interface CommentDto {
     userId: number;
-    content: string; // Match backend DTO field
+    username: string; // ✅ Added username for better frontend display
+    content: string; // ✅ Match backend DTO field
 }

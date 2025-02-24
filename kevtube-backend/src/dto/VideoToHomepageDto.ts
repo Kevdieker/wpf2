@@ -1,7 +1,6 @@
 export class VideoToHomepageDto {
     id: number;
     title: string;
-    videoUrl: string;
     thumbnailUrl?: string;
     uploadDate: string;
     username: string;
@@ -10,7 +9,6 @@ export class VideoToHomepageDto {
     constructor(
         id: number,
         title: string,
-        videoUrl: string,
         thumbnailUrl: string,
         uploadDate: Date,
         username: string,
@@ -18,7 +16,6 @@ export class VideoToHomepageDto {
     ) {
         this.id = id;
         this.title = title;
-        this.videoUrl = videoUrl;
         this.thumbnailUrl = thumbnailUrl;
         this.uploadDate = uploadDate.toISOString();
         this.username = username;
