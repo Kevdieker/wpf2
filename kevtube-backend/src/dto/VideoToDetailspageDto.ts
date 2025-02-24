@@ -10,6 +10,8 @@ export class VideoToDetailspageDto {
     uploaderUsername: string;
     comments: CommentDto[];
     userHasLiked: boolean;
+    description: string;
+    transcript: string;
 
     constructor(
         id: number,
@@ -20,18 +22,20 @@ export class VideoToDetailspageDto {
         likes: number,
         uploaderUsername: string,
         comments: CommentDto[],
-        userHasLiked: boolean
+        userHasLiked: boolean,
+        description: string,
+        transcript: string
     ) {
         this.id = id;
         this.title = title;
-        this.videoUrl = videoUrl && videoUrl.trim() !== ""
-            ? videoUrl
-            : `http://localhost:8088/resources/videos/input.mp4`; // Fallback zu input.mp4 statt stream.m3u8
+        this.videoUrl = videoUrl && videoUrl.trim() !== "" ? videoUrl : "http://localhost:8088/resources/videos/input.mp4";
         this.views = views;
         this.uploadDate = uploadDate.toISOString();
         this.likes = likes;
         this.uploaderUsername = uploaderUsername;
         this.comments = comments;
         this.userHasLiked = userHasLiked;
+        this.description = description;
+        this.transcript = transcript;
     }
 }

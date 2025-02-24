@@ -24,23 +24,21 @@ export class VideoService {
     static async getVideoById(videoId: number, userId: number | null): Promise<VideoToDetailspageDto | null> {
         const video = await prisma.video.update({
             where: { id: videoId },
-            data: { views: { increment: 1 } }, // ✅ Increase views
+            data: { views: { increment: 1 } },
             include: {
                 user: true,
                 comments: { include: { user: true } },
-                likedBy: true // ✅ Check likes
+                likedBy: true
             }
         });
 
         if (!video) return null;
 
-        // ✅ Check if the user has already liked this video
         const userHasLiked = userId ? video.likedBy.some(like => like.userId === userId) : false;
-
         return new VideoToDetailspageDto(
             video.id,
             video.title,
-            video.videoUrl ?? null,
+            video.videoUrl ?? "", // statt null
             video.views,
             video.uploadDate,
             video.likes,
@@ -48,8 +46,11 @@ export class VideoService {
             video.comments.map(comment =>
                 new CommentDto(comment.userId, comment.user.username, comment.content)
             ),
-            userHasLiked // ✅ Return whether the user liked the video
+            userHasLiked,
+            video.description?? "",
+            video.transcript?? "",
         );
+
     }
 
     // ✅ Like a Video (Only Once Per User)
@@ -84,7 +85,9 @@ export class VideoService {
             video.comments.map(comment =>
                 new CommentDto(comment.userId, comment.user.username, comment.content)
             ),
-            true // ✅ Mark the user as having liked the video
+            true,
+            video.description?? "",
+            video.transcript?? "",
         );
     }
 
@@ -123,7 +126,9 @@ export class VideoService {
             video.comments.map(comment =>
                 new CommentDto(comment.userId, comment.user.username, comment.content)
             ),
-            false // Der Benutzer hat das Video nicht mehr geliked
+            false,
+            video.description?? "",
+            video.transcript?? "",
         );
     }
 

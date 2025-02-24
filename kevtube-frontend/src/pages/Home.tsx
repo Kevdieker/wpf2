@@ -68,6 +68,29 @@ const Home: React.FC = () => {
         setUser(null); // ✅ Clear user data
     };
 
+    const handleRegister = async () => {
+        const username = prompt("Enter a username:");
+        const email = prompt("Enter your email:");
+        const password = prompt("Enter your password:");
+        if (!username || !email || !password) {
+            alert("Please enter username, email, and password.");
+            return;
+        }
+        try {
+            const response = await axios.post(
+                "http://localhost:8088/auth/register",
+                { username, email, password },
+                { withCredentials: true }
+            );
+            alert("Registration successful!");
+            // Optional: gleich als User einloggen und setzen:
+            setUser(response.data.user);
+        } catch (error: any) {
+            console.error("Registration error:", error.response?.data || error.message);
+            alert("Registration failed!");
+        }
+    };
+
     return (
         <div className="App">
             <header className="App-header">
@@ -75,7 +98,10 @@ const Home: React.FC = () => {
                 {user ? (
                     <button className="logout-btn" onClick={handleLogout}>Logout ({user.username})</button>
                 ) : (
-                    <button className="login-btn" onClick={handleLogin}>Login</button>
+                    <>
+                        <button className="login-btn" onClick={handleLogin}>Login</button>
+                        <button className="register-btn" onClick={handleRegister}>Register</button>
+                    </>
                 )}
             </header>
 
