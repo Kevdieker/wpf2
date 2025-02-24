@@ -33,14 +33,16 @@ export async function seedDatabase(): Promise<void> {
             createdUsers.push(user);
         }
 
-        // Erstelle das erste Video (zum Beispiel zugewiesen an Kevin)
+        // Erstes Video: "Example Video"
         const video1 = await prisma.video.create({
             data: {
                 title: "Example Video",
                 description: "This is a sample video for testing.",
                 transcript: "This is a sample transcript.",
-                videoUrl: "videos/9999/stream.m3u8",
-                thumbnailUrl: "thumbnails/9999.jpg",
+                // Direkte URL zur MP4-Datei
+                videoUrl: "http://localhost:8088/resources/videos/input.mp4",
+                // Direkte URL zum Thumbnail
+                thumbnailUrl: "http://localhost:8088/resources/sample.jpg",
                 uploadDate: new Date(),
                 likes: 0,
                 views: 0,
@@ -49,18 +51,18 @@ export async function seedDatabase(): Promise<void> {
         });
         console.log("🎥 Created first video:", video1);
 
-        // Erstelle ein zweites Video, z. B. zugewiesen an den zweiten Benutzer
+        // Zweites Video: "Second Video"
         const video2 = await prisma.video.create({
             data: {
                 title: "Second Video",
                 description: "This is the second sample video.",
                 transcript: "This is the transcript for the second video.",
-                videoUrl: "videos/10000/stream.m3u8",
-                thumbnailUrl: "thumbnails/10000.jpg",
+                videoUrl: "http://localhost:8088/resources/videos/input.mp4",
+                thumbnailUrl: "http://localhost:8088/resources/sample.jpg",
                 uploadDate: new Date(),
                 likes: 0,
                 views: 0,
-                userId: createdUsers[1].id // Zum Beispiel user1
+                userId: createdUsers[1].id // user1
             }
         });
         console.log("🎥 Created second video:", video2);

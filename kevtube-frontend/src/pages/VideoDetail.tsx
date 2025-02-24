@@ -14,9 +14,9 @@ const VideoDetail: React.FC = () => {
     const videoRef = useRef<HTMLVideoElement | null>(null);
     const [user, setUser] = useState<{ username: string } | null>(null);
 
-    const API_URL = "http://localhost:8088"; // ✅ Backend URL
+    const API_URL = "http://localhost:8088";
 
-// ✅ Fetch Video Details
+    // Fetch Video Details
     useEffect(() => {
         axios.get(`${API_URL}/videos/${id}`, { withCredentials: true })
             .then((res) => {
@@ -31,7 +31,7 @@ const VideoDetail: React.FC = () => {
     }, [id]);
 
     useEffect(() => {
-        axios.get('http://localhost:8088/auth/me', { withCredentials: true })
+        axios.get(`${API_URL}/auth/me`, { withCredentials: true })
             .then(response => {
                 if (response.data?.username) {
                     setUser({ username: response.data.username });
@@ -40,10 +40,6 @@ const VideoDetail: React.FC = () => {
             .catch(() => setUser(null));
     }, []);
 
-
-
-
-    // ✅ Handle Login
     const handleLogin = async () => {
         const email = prompt("Enter your email:");
         const password = prompt("Enter your password:");
@@ -51,53 +47,43 @@ const VideoDetail: React.FC = () => {
         if (!email || !password) return;
 
         try {
-            await axios.post('http://localhost:8088/auth/login', { email, password }, { withCredentials: true });
-            const response = await axios.get('http://localhost:8088/auth/me', { withCredentials: true });
-            setUser(response.data); // ✅ Store user data
+            await axios.post(`${API_URL}/auth/login`, { email, password }, { withCredentials: true });
+            const response = await axios.get(`${API_URL}/auth/me`, { withCredentials: true });
+            setUser(response.data);
         } catch (error) {
             alert("Login failed! ❌");
         }
     };
 
-
-    // ✅ Logout function
     const handleLogout = async () => {
-        await axios.post('http://localhost:8088/auth/logout', {}, { withCredentials: true });
-        setUser(null); // ✅ Clear user data
+        await axios.post(`${API_URL}/auth/logout`, {}, { withCredentials: true });
+        setUser(null);
     };
 
-    // ✅ Toggle Like / Unlike
     const toggleLike = async () => {
         if (!video) return;
-        if (!user) {  // Prüfe, ob der User eingeloggt ist
+        if (!user) {
             setShowLoginPopup(true);
             return;
         }
-
         try {
             const url = video.userHasLiked
-                ? `${API_URL}/videos/${id}/unlike`  // ✅ Unlike endpoint
-                : `${API_URL}/videos/${id}/like`;   // ✅ Like endpoint
-
+                ? `${API_URL}/videos/${id}/unlike`
+                : `${API_URL}/videos/${id}/like`;
             const response = await axios.post(url, {}, { withCredentials: true });
-
             setVideo(response.data);
         } catch (error) {
             console.error("Error toggling like:", error);
         }
     };
 
-
-    // ✅ Submit Comment
     const submitComment = async () => {
         if (!newComment.trim() || !video || !user) return;
-
         try {
             const response = await axios.post(`${API_URL}/comments`,
                 { videoId: video.id, content: newComment },
                 { withCredentials: true }
             );
-
             setVideo((prevVideo) => prevVideo ? { ...prevVideo, comments: [...prevVideo.comments, response.data] } : prevVideo);
             setNewComment("");
         } catch (error) {
@@ -128,43 +114,32 @@ const VideoDetail: React.FC = () => {
             <div className="video-player">
                 {video.videoUrl ? (
                     <video ref={videoRef} controls width="100%" height="auto">
-                        {!video.videoUrl.endsWith(".m3u8") && <source src={video.videoUrl} type="video/mp4" />}
+                        <source src={video.videoUrl} type="video/mp4" />
                     </video>
                 ) : (
                     <p>No video available</p>
                 )}
             </div>
 
-            {/* 📌 Separate Like & Views Section */}
+            {/* Like & Views Section */}
             <div className="video-meta">
                 <div className="views">👁️ {video.views.toLocaleString()} Views</div>
                 <div className="likes">❤️ {video.likes} Likes</div>
             </div>
 
-            {/* Like Button */}
             <button className={`like-btn ${video.userHasLiked ? "liked" : ""}`} onClick={toggleLike} disabled={!user}>
                 {video.userHasLiked ? "💔 Unlike" : "❤️ Like"}
             </button>
 
-
             {/* Comments Section */}
             <h2>💬 Comments</h2>
-
-            {/* Kommentar-Eingabe, wenn User eingeloggt */}
             {user && (
                 <div className="add-comment-section">
-        <textarea
-            value={newComment}
-            onChange={(e) => setNewComment(e.target.value)}
-            placeholder="Add your comment..."
-        />
-                    <button onClick={submitComment} disabled={!newComment.trim()}>
-                        Post Comment
-                    </button>
+                    <textarea value={newComment} onChange={(e) => setNewComment(e.target.value)} placeholder="Add your comment..." />
+                    <button onClick={submitComment} disabled={!newComment.trim()}>Post Comment</button>
                 </div>
             )}
 
-            {/* Anzeige der Kommentare */}
             <div className="comments-list">
                 {video.comments && video.comments.length > 0 ? (
                     video.comments.map((comment, index) => (
@@ -177,8 +152,6 @@ const VideoDetail: React.FC = () => {
                 )}
             </div>
 
-
-            {/* 🟢 LOGIN POPUP */}
             {showLoginPopup && (
                 <div className="login-popup">
                     <div className="login-popup-content">

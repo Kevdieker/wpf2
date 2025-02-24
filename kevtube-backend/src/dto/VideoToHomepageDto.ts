@@ -1,7 +1,7 @@
 export class VideoToHomepageDto {
     id: number;
     title: string;
-    thumbnailUrl?: string;
+    thumbnailUrl: string;
     uploadDate: string;
     username: string;
     views: number;
@@ -16,7 +16,9 @@ export class VideoToHomepageDto {
     ) {
         this.id = id;
         this.title = title;
-        this.thumbnailUrl = thumbnailUrl;
+        this.thumbnailUrl = thumbnailUrl && thumbnailUrl.trim() !== ""
+            ? thumbnailUrl
+            : "http://localhost:8088/resources/sample.jpg";
         this.uploadDate = uploadDate.toISOString();
         this.username = username;
         this.views = views;

@@ -8,6 +8,7 @@ import authRoutes from "./controllers/auth.controller";
 import videoRoutes from "./controllers/video.controller";
 import commentRoutes from "./controllers/comment.controller";
 import {seedDatabase} from "./seed";
+import path from "node:path";
 
 const app = express();
 
@@ -27,6 +28,11 @@ app.use(cors({
     },
     credentials: true // ✅ Required for cookies/sessions
 }));
+
+app.use(
+    "/resources",
+    express.static(path.join(__dirname, "..", "resources"))
+);
 
 // ✅ Body Parser Middleware
 app.use(bodyParser.json());
