@@ -16,7 +16,7 @@ interface VideoSummary {
 const Home: React.FC = () => {
     const [videos, setVideos] = useState<VideoSummary[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
-    const [user, setUser] = useState<{ username: string } | null>(null); // ✅ Track user
+    const [user, setUser] = useState<{ username: string } | null>(null);
 
     const API_URL = 'http://localhost:8088/videos';
 
@@ -35,7 +35,7 @@ const Home: React.FC = () => {
         fetchVideos();
     }, []);
 
-    // ✅ Check if user is logged in
+    // Check if user is logged in
     useEffect(() => {
         axios.get('http://localhost:8088/auth/me', { withCredentials: true })
             .then(response => {
@@ -46,7 +46,7 @@ const Home: React.FC = () => {
             .catch(() => setUser(null));
     }, []);
 
-    // ✅ Login function
+    // Login function
     const handleLogin = async () => {
         const email = prompt("Enter your email:");
         const password = prompt("Enter your password:");
@@ -58,11 +58,11 @@ const Home: React.FC = () => {
             const response = await axios.get('http://localhost:8088/auth/me', { withCredentials: true });
             setUser(response.data); // ✅ Store user data
         } catch (error) {
-            alert("Login failed! ❌");
+            alert("Login failed!");
         }
     };
 
-    // ✅ Logout function
+    // Logout function
     const handleLogout = async () => {
         await axios.post('http://localhost:8088/auth/logout', {}, { withCredentials: true });
         setUser(null); // ✅ Clear user data
@@ -83,7 +83,7 @@ const Home: React.FC = () => {
                 { withCredentials: true }
             );
             alert("Registration successful!");
-            // Optional: gleich als User einloggen und setzen:
+            // gleich als User einloggen und setzen:
             setUser(response.data.user);
         } catch (error: any) {
             console.error("Registration error:", error.response?.data || error.message);

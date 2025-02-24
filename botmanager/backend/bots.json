@@ -26,19 +26,5 @@
     "email": "user4@example.com",
     "password": "password4",
     "active": false
-  },
-  {
-    "id": 5,
-    "username": "bot5",
-    "email": "bot5@example.com",
-    "password": "password5",
-    "active": false
-  },
-  {
-    "id": 7,
-    "username": "bot7",
-    "email": "bot7@example.com",
-    "password": "password7",
-    "active": true
   }
 ]

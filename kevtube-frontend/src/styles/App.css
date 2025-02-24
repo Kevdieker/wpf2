@@ -1,4 +1,4 @@
-/* General Styles */
+
 * {
     margin: 0;
     padding: 0;
@@ -14,7 +14,6 @@ body {
     width: 100%;
 }
 
-/* App Container */
 .App {
     text-align: center;
     padding: 2px;
@@ -56,7 +55,7 @@ body {
 }
 
 .video-detail-container {
-    width: 80vw;  /* 🔥 Dynamisch an Bildschirmgröße angepasst */
+    width: 80vw;
     margin: auto;
     background: #ffff;
     padding: 20px;
@@ -65,16 +64,15 @@ body {
     color: #000;
     display: flex;
     flex-direction: column;
-    align-items: center; /* 🎯 Perfekt mittig */
+    align-items: center;
     justify-content: center;
 }
 
-/* 🎬 Video Player Responsive & Mittig */
 .video-player {
-    width: 100%; /* Immer volle Breite innerhalb des Containers */
-    max-width: 1200px; /* 🔥 Maximale Breite für große Monitore */
+    width: 100%;
+    max-width: 1200px;
     height: auto;
-    aspect-ratio: 16 / 9; /* 📺 Automatische Höhe basierend auf Breite */
+    aspect-ratio: 16 / 9;
     margin: 20px 0;
     background: black;
     border-radius: 12px;
@@ -85,10 +83,10 @@ body {
 .video-player video {
     width: 100%;
     height: 100%;
-    object-fit: contain; /* 🔥 Verhindert Verzerrung */
+    object-fit: contain;
 }
 
-/* 📊 Video Info - Flexible Anzeige */
+
 .video-info {
     display: flex;
     justify-content: space-between;
@@ -103,7 +101,7 @@ body {
     border-radius: 10px;
 }
 
-/* 📏 Anpassung für kleinere Bildschirme */
+
 @media (max-width: 768px) {
     .video-detail-container {
         width: 95%;
@@ -112,7 +110,7 @@ body {
 
     .video-player {
         width: 100%;
-        aspect-ratio: 16 / 9; /* 🔥 Responsive Höhe */
+        aspect-ratio: 16 / 9;
     }
 
     .video-info {
@@ -130,7 +128,6 @@ body {
     color: #ff5252;
 }
 
-/* 🔥 Like Button Rechts */
 .like-btn {
     background: #ff5252;
     color: white;
@@ -146,7 +143,6 @@ body {
     background: #ff3333;
 }
 
-/* 💬 Comments Section */
 .comments-heading {
     font-size: 1.8rem;
     margin-top: 30px;
@@ -154,7 +150,6 @@ body {
     text-align: left;
 }
 
-/* 📩 Comments List - Links Unten */
 .comment-list {
     list-style: none;
     padding: 0;
@@ -173,7 +168,6 @@ body {
     color: #333;
 }
 
-/* 📑 Textbox für Kommentare */
 .add-comment-section {
     margin-top: 20px;
     text-align: left;
@@ -202,7 +196,6 @@ body {
     background: #388e3c;
 }
 
-/* 🎥 Responsive Video */
 @media (max-width: 768px) {
     .video-player {
         height: 50vh;

@@ -30,6 +30,7 @@ const VideoDetail: React.FC = () => {
             });
     }, [id]);
 
+    // Check if user is logged in
     useEffect(() => {
         axios.get(`${API_URL}/auth/me`, { withCredentials: true })
             .then(response => {
@@ -49,7 +50,7 @@ const VideoDetail: React.FC = () => {
             const response = await axios.get(`${API_URL}/auth/me`, { withCredentials: true });
             setUser(response.data);
         } catch (error) {
-            alert("Login failed! ❌");
+            alert("Login failed!");
         }
     };
 
@@ -95,7 +96,6 @@ const VideoDetail: React.FC = () => {
 
     return (
         <div className="video-detail-container">
-            {/* Header */}
             <header className="video-header">
                 <a href="/" className="logo">KevTube</a>
                 {user ? (
@@ -104,14 +104,7 @@ const VideoDetail: React.FC = () => {
                     <button className="login-btn" onClick={handleLogin}>Login</button>
                 )}
             </header>
-
-            {/* Video Title */}
             <h1>{video.title}</h1>
-
-            {/* Zusätzliche Informationen: Beschreibung und Transkript */}
-
-
-            {/* Video Player */}
             <div className="video-player">
                 {video.videoUrl ? (
                     <video ref={videoRef} controls width="100%" height="auto">
@@ -121,8 +114,6 @@ const VideoDetail: React.FC = () => {
                     <p>No video available</p>
                 )}
             </div>
-
-            {/* Like & Views Section */}
             <div className="video-meta">
                 <div className="views">👁️ {video.views.toLocaleString()} Views</div>
                 <div className="likes">❤️ {video.likes} Likes</div>
@@ -133,7 +124,6 @@ const VideoDetail: React.FC = () => {
             </button>
             <p><strong>Description:</strong> {video.description || "No description available."}</p>
             <p><strong>Transcript:</strong> {video.transcript || "No transcript available."}</p>
-            {/* Comments Section */}
             <h2>💬 Comments</h2>
             {user && (
                 <div className="add-comment-section">
@@ -142,7 +132,6 @@ const VideoDetail: React.FC = () => {
                     <button onClick={submitComment} disabled={!newComment.trim()}>Post Comment</button>
                 </div>
             )}
-
             <div className="comments-list">
                 {video.comments && video.comments.length > 0 ? (
                     video.comments.map((comment, index) => (
@@ -154,7 +143,6 @@ const VideoDetail: React.FC = () => {
                     <p>No comments yet.</p>
                 )}
             </div>
-
             {showLoginPopup && (
                 <div className="login-popup">
                     <div className="login-popup-content">
