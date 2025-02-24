@@ -120,6 +120,18 @@ class BotManager {
             console.error(`[BotManager] ❌ Bot ${botId} not found`);
             return;
         }
+        // Falls der Kommentar ein Sternchen ist, wähle einen zufälligen vordefinierten Kommentar
+        const predefinedComments = [
+            "Great video!",
+            "Awesome content!",
+            "Loved it, keep it up!",
+            "Very informative!",
+            "Thanks for sharing!"
+        ];
+        if (comment.trim() === "*") {
+            comment = predefinedComments[Math.floor(Math.random() * predefinedComments.length)];
+            console.log(`[BotManager] Random comment chosen for ${bot.username}: ${comment}`);
+        }
         console.log(`[BotManager] 💬 ${bot.username} commenting on video ${videoId}: "${comment}"...`);
         try {
             const client = this.getClient(bot.id);

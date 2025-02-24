@@ -8,11 +8,9 @@ import BotManager from "./botManager";
 dotenv.config();
 const app = express();
 app.use(cors({
-    origin: "http://localhost:3000"
-    ,
+    origin: "http://localhost:3000",
     credentials: true
 }));
-
 app.use(express.json());
 console.log("✅ Loaded ENV Port:", process.env.PORT);
 
