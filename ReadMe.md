@@ -116,3 +116,13 @@ Prisma is used to connect to the database. To generate the prisma clients run th
 ```bash
 npx prisma generate
 ```
+### Start application
+
+Go in all the front and backends
+
+```bash
+npm run start
+```
+```bash
+npm run dev
+```
