@@ -1,54 +1,85 @@
-import prisma from './prisma/prismaClient'; // Adjusted relative import
-import path from "node:path";
+import prisma from './prisma/prismaClient';
 
 export async function seedDatabase(): Promise<void> {
     try {
         console.log("🔄 Seeding database...");
 
-        // 📌 Ensure at least one user exists (Admin)
-        let user = await prisma.user.findFirst();
-        if (!user) {
-            user = await prisma.user.create({
-                data: {
-                    username: "admin",
-                    email: "admin@example.com",
-                    password: "securepassword123" // ✅ No hashing (for dev)
-                }
-            });
-            console.log("👤 ✅ Admin User created:", user);
-        } else {
-            console.log("✅ User already exists:", user.username);
+        // Optional: Vorhandene Daten löschen
+        await prisma.like.deleteMany({});
+        await prisma.comment.deleteMany({});
+        await prisma.video.deleteMany({});
+        await prisma.user.deleteMany({});
+
+        // Definiere 12 Benutzer, einer davon ist Kevin
+        const usersData = [
+            { username: "kevin", email: "test@test", password: "test" },
+            { username: "user1", email: "user1@example.com", password: "password1" },
+            { username: "user2", email: "user2@example.com", password: "password2" },
+            { username: "user3", email: "user3@example.com", password: "password3" },
+            { username: "user4", email: "user4@example.com", password: "password4" },
+            { username: "user5", email: "user5@example.com", password: "password5" },
+            { username: "user6", email: "user6@example.com", password: "password6" },
+            { username: "user7", email: "user7@example.com", password: "password7" },
+            { username: "user8", email: "user8@example.com", password: "password8" },
+            { username: "user9", email: "user9@example.com", password: "password9" },
+            { username: "user10", email: "user10@example.com", password: "password10" },
+            { username: "user11", email: "user11@example.com", password: "password11" }
+        ];
+
+        const createdUsers = [];
+        for (const userData of usersData) {
+            const user = await prisma.user.create({ data: userData });
+            console.log(`👤 Created user: ${user.username}`);
+            createdUsers.push(user);
         }
 
-        // 📌 Check if at least one video exists
-        const existingVideo = await prisma.video.findFirst();
-        if (existingVideo) {
-            console.log("✅ Videos already exist. No need to seed.");
-            return;
-        }
-
-        // 📌 Define Video Paths
-        const videoId = 9999; // Static ID for the sample video
-        const hlsPath = `videos/${videoId}/stream.m3u8`; // ✅ Direct HLS path
-        const thumbnailPath = `thumbnails/${videoId}.jpg`; // ✅ Thumbnail path
-
-        // 📌 Insert Video Data into DB (Assigned to Admin)
-        const newVideo = await prisma.video.create({
+        // Erstelle das erste Video (zum Beispiel zugewiesen an Kevin)
+        const video1 = await prisma.video.create({
             data: {
                 title: "Example Video",
                 description: "This is a sample video for testing.",
                 transcript: "This is a sample transcript.",
-                videoUrl: hlsPath,
-                thumbnailUrl: thumbnailPath,
+                videoUrl: "videos/9999/stream.m3u8",
+                thumbnailUrl: "thumbnails/9999.jpg",
                 uploadDate: new Date(),
                 likes: 0,
-                views: 0, // ✅ Initialize with 0 views
-                userId: user.id // ✅ Assign to first user (Admin)
+                views: 0,
+                userId: createdUsers[0].id // Kevin
             }
         });
+        console.log("🎥 Created first video:", video1);
 
-        console.log("🎥 ✅ Video successfully seeded:", newVideo);
+        // Erstelle ein zweites Video, z. B. zugewiesen an den zweiten Benutzer
+        const video2 = await prisma.video.create({
+            data: {
+                title: "Second Video",
+                description: "This is the second sample video.",
+                transcript: "This is the transcript for the second video.",
+                videoUrl: "videos/10000/stream.m3u8",
+                thumbnailUrl: "thumbnails/10000.jpg",
+                uploadDate: new Date(),
+                likes: 0,
+                views: 0,
+                userId: createdUsers[1].id // Zum Beispiel user1
+            }
+        });
+        console.log("🎥 Created second video:", video2);
+
+        console.log("✅ Seeding completed.");
     } catch (error) {
         console.error("❌ Error seeding database:", error);
     }
+}
+
+// Falls das Skript direkt ausgeführt wird
+if (require.main === module) {
+    seedDatabase()
+        .then(() => {
+            console.log("Database seeded successfully.");
+            process.exit(0);
+        })
+        .catch((e) => {
+            console.error("Error seeding database:", e);
+            process.exit(1);
+        });
 }

@@ -7,104 +7,147 @@ interface Bot {
     active: boolean;
 }
 
+interface Video {
+    id: number;
+    title: string;
+    thumbnailUrl?: string;
+}
+
 const App: React.FC = () => {
     const [bots, setBots] = useState<Bot[]>([]);
+    const [videos, setVideos] = useState<Video[]>([]);
     const [videoId, setVideoId] = useState("");
     const [comment, setComment] = useState("");
     const [logs, setLogs] = useState<string[]>([]);
 
-    // ✅ Fetch logs from backend every 3 seconds
+    // Logs vom Botmanager alle 3 Sekunden abrufen
     useEffect(() => {
         const fetchLogs = () => {
-            axios.get("http://localhost:8888/logs")
-                .then((res) => setLogs(res.data.logs))
-                .catch((err) => console.error("❌ Error fetching logs:", err));
+            axios
+                .get("http://localhost:8888/logs")
+                .then((res) => {
+                    console.log("[APP] Logs received:", res.data);
+                    setLogs(res.data.logs);
+                })
+                .catch((err) =>
+                    console.error("❌ [APP] Error fetching logs:", err.response?.data || err.message)
+                );
         };
 
-        fetchLogs(); // Initial fetch
-        const interval = setInterval(fetchLogs, 3000); // Refresh logs every 3 seconds
-
+        fetchLogs();
+        const interval = setInterval(fetchLogs, 3000);
         return () => clearInterval(interval);
     }, []);
 
-    // ✅ Fetch bots from backend
+    // Bots vom Botmanager abrufen
     useEffect(() => {
-        axios.get("http://localhost:8888/bots")
-            .then((res) => setBots(res.data))
-            .catch((err) => console.error("❌ Error fetching bots:", err));
+        axios
+            .get("http://localhost:8888/bots")
+            .then((res) => {
+                console.log("[APP] Bots received:", res.data);
+                setBots(res.data);
+            })
+            .catch((err) =>
+                console.error("❌ [APP] Error fetching bots:", err.response?.data || err.message)
+            );
     }, []);
 
-    // ✅ Init Bots (Ask how many, fetch from backend)
+    // Verfügbare Videos über den Botmanager abrufen
+    useEffect(() => {
+        axios
+            .get("http://localhost:8888/videos")
+            .then((res) => {
+                console.log("[APP] Videos received:", res.data);
+                setVideos(res.data);
+            })
+            .catch((err) =>
+                console.error("❌ [APP] Error fetching videos:", err.response?.data || err.message)
+            );
+    }, []);
+
+    // Init Bots: Erzeugt Bots und loggt sie ein
     const initBots = () => {
         const count = parseInt(prompt("How many bots to create? (Max 10)", "1") || "0");
         if (count < 1 || count > 10) return alert("Enter a number between 1 and 10!");
-
-        axios.post("http://localhost:8888/bots/init", { count })
+        axios
+            .post("http://localhost:8888/bots/init", { count })
             .then((res) => {
-                console.log(`✅ Created ${count} bots`);
+                console.log(`[APP] Created ${count} bots:`, res.data);
                 setBots(res.data);
             })
-            .catch((err) => console.error("❌ Error creating bots:", err));
+            .catch((err) =>
+                console.error("❌ [APP] Error creating bots:", err.response?.data || err.message)
+            );
     };
 
-    // ✅ Like Video (Single Bot)
+    // Single Bot: Like Video – Anfrage über den Botmanager an KevTube
     const likeVideo = (botId: number) => {
         if (!videoId) return alert("Enter a video ID!");
-        axios.post("http://localhost:8888/bots/like", { botId, videoId })
-            .then(() => console.log(`✅ Bot ${botId} liked video ${videoId}`))
-            .catch((err) => console.error("❌ Error liking video:", err));
+        axios
+            .post("http://localhost:8888/bots/like", { botId, videoId }, { withCredentials: true })
+            .then(() => console.log(`[APP] Bot ${botId} liked video ${videoId}`))
+            .catch((err) =>
+                console.error("❌ [APP] Error liking video:", err.response?.data || err.message)
+            );
     };
 
-    // ✅ Comment on Video (Single Bot)
+    // Single Bot: Comment on Video – Anfrage über den Botmanager an KevTube
     const commentVideo = (botId: number) => {
         if (!videoId || !comment) return alert("Enter a video ID and comment!");
-        axios.post("http://localhost:8888/bots/comment", { botId, videoId, comment })
-            .then(() => console.log(`✅ Bot ${botId} commented on video ${videoId}`))
-            .catch((err) => console.error("❌ Error commenting on video:", err));
+        axios
+            .post("http://localhost:8888/bots/comment", { botId, videoId, comment }, { withCredentials: true })
+            .then(() => console.log(`[APP] Bot ${botId} commented on video ${videoId}`))
+            .catch((err) =>
+                console.error("❌ [APP] Error commenting on video:", err.response?.data || err.message)
+            );
     };
 
-    // ✅ View Video (Single Bot)
+    // Single Bot: View Video – Anfrage an den Botmanager, der KevTube aufruft
     const viewVideo = (videoId: string) => {
         if (!videoId) return alert("Enter a video ID!");
-        window.open(`http://localhost:8008/video/${videoId}`, "_blank");
+        axios
+            .post("http://localhost:8888/bots/view", { videoId }, { withCredentials: true })
+            .then(() => console.log(`[APP] Viewed video ${videoId}`))
+            .catch((err) =>
+                console.error("❌ [APP] Error viewing video:", err.response?.data || err.message)
+            );
     };
 
-    // ✅ All Bots Like Video
+    // Alle aktiven Bots sollen liken
     const allBotsLike = () => {
         if (!videoId) return alert("Enter a video ID!");
-        axios.post("http://localhost:8888/bots/all/like", { videoId })
-            .then(() => console.log(`✅ All active bots liked video ${videoId}`))
-            .catch((err) => console.error("❌ Error liking video with all bots:", err));
+        bots.filter(bot => bot.active).forEach(bot => likeVideo(bot.id));
     };
 
-    // ✅ All Bots Comment on Video
+    // Alle aktiven Bots sollen kommentieren
     const allBotsComment = () => {
         if (!videoId || !comment) return alert("Enter a video ID and comment!");
-        axios.post("http://localhost:8888/bots/all/comment", { videoId, comment })
-            .then(() => console.log(`✅ All active bots commented on video ${videoId}`))
-            .catch((err) => console.error("❌ Error commenting on video with all bots:", err));
+        bots.filter(bot => bot.active).forEach(bot => commentVideo(bot.id));
     };
 
-    // ✅ All Bots View Video
+    // Alle aktiven Bots sollen das Video viewen
     const allBotsView = () => {
         if (!videoId) return alert("Enter a video ID!");
-        bots.filter(bot => bot.active).forEach(() => viewVideo(videoId));
+        bots.filter(bot => bot.active).forEach(bot => viewVideo(videoId));
     };
 
-    // ✅ Toggle Bot Activation
+    // Toggle Bot Activation – ruft /bots/toggle/:id auf
     const toggleBot = (botId: number) => {
-        axios.post(`http://localhost:8888/bots/toggle/${botId}`)
+        axios
+            .post(`http://localhost:8888/bots/toggle/${botId}`)
             .then(() => {
                 setBots(prevBots =>
                     prevBots.map(bot =>
                         bot.id === botId ? { ...bot, active: !bot.active } : bot
                     )
                 );
+                console.log(`[APP] Toggled bot ${botId}`);
             })
-            .catch((err) => console.error("❌ Error toggling bot:", err));
+            .catch((err) =>
+                console.error("❌ [APP] Error toggling bot:", err.response?.data || err.message)
+            );
     };
 
-    // ✅ Count Active Bots
     const activeBotsCount = bots.filter(bot => bot.active).length;
 
     return (
@@ -113,6 +156,19 @@ const App: React.FC = () => {
             <div style={{ flex: 2, padding: "20px", fontFamily: "Arial" }}>
                 <h1>🤖 KevTube Botmanager</h1>
                 <button onClick={initBots}>➕ Init Bots</button>
+
+                <h2>Available Videos:</h2>
+                {videos.length === 0 ? (
+                    <p>No videos available.</p>
+                ) : (
+                    <ul>
+                        {videos.map(video => (
+                            <li key={video.id}>
+                                ID: {video.id} - {video.title}
+                            </li>
+                        ))}
+                    </ul>
+                )}
 
                 <h2>All Bots Actions (Active Bots: {activeBotsCount})</h2>
                 <input
@@ -134,76 +190,70 @@ const App: React.FC = () => {
                 <button onClick={allBotsView}>🎥 All Bots View</button>
 
                 <h2>Bots:</h2>
-                {bots.length === 0 ? <p>No bots initialized yet.</p> : (
+                {bots.length === 0 ? (
+                    <p>No bots initialized yet.</p>
+                ) : (
                     <ul>
                         {bots.map((bot) => (
                             <li key={bot.id} style={{ marginBottom: "10px" }}>
                                 <strong>{bot.username}</strong>
-                                <span style={{
-                                    display: "inline-block",
-                                    width: "10px", height: "10px",
-                                    backgroundColor: bot.active ? "green" : "red",
-                                    borderRadius: "50%", marginLeft: "10px",marginRight: "10px"
-                                }}></span>
-
-                                {/* Toggle Bot Button */}
+                                <span
+                                    style={{
+                                        display: "inline-block",
+                                        width: "10px",
+                                        height: "10px",
+                                        backgroundColor: bot.active ? "green" : "red",
+                                        borderRadius: "50%",
+                                        marginLeft: "10px",
+                                        marginRight: "10px",
+                                    }}
+                                ></span>
                                 <button
                                     onClick={() => toggleBot(bot.id)}
-                                    style={{
-                                        minWidth: "120px", // 🔥 Ensure both buttons are same size
-                                        textAlign: "center",
-                                        padding: "5px"
-                                    }}
+                                    style={{ minWidth: "120px", textAlign: "center", padding: "5px" }}
                                 >
                                     {bot.active ? "Deactivate" : "Activate"}
                                 </button>
-
-                                {/* Video ID Input for each bot */}
-                                <input
-                                    type="text"
-                                    placeholder="Video ID"
-                                    onChange={(e) => setVideoId(e.target.value)}
-                                    style={{ marginLeft: "10px", width: "100px" }}
-                                    disabled={!bot.active}
-                                />
-
-                                {/* Buttons for each bot */}
-                                <button onClick={() => likeVideo(bot.id)} disabled={!bot.active}>👍 Like</button>
-                                <input
-                                    type="text"
-                                    placeholder="Comment"
-                                    onChange={(e) => setComment(e.target.value)}
-                                    style={{ marginLeft: "10px", width: "120px" }}
-                                    disabled={!bot.active}
-                                />
-                                <button onClick={() => commentVideo(bot.id)} disabled={!bot.active}>💬 Comment</button>
-                                <button onClick={() => viewVideo(videoId)} disabled={!bot.active}>🎥 View</button>
+                                <button onClick={() => likeVideo(bot.id)} disabled={!bot.active}>
+                                    👍 Like
+                                </button>
+                                <button onClick={() => commentVideo(bot.id)} disabled={!bot.active}>
+                                    💬 Comment
+                                </button>
+                                <button onClick={() => viewVideo(videoId)} disabled={!bot.active}>
+                                    🎥 View
+                                </button>
                             </li>
                         ))}
                     </ul>
                 )}
             </div>
             {/* RIGHT: Logs Panel */}
-            <div style={{
-                flex: 1,
-                backgroundColor: "#f0f0f0",
-                padding: "20px",
-                borderLeft: "2px solid #ccc",
-                overflowY: "auto"
-            }}>
-                <h2>📜 Logs</h2>
-                <div style={{
-                    height: "85%",
+            <div
+                style={{
+                    flex: 1,
+                    backgroundColor: "#f0f0f0",
+                    padding: "20px",
+                    borderLeft: "2px solid #ccc",
                     overflowY: "auto",
-                    fontFamily: "monospace",
-                    whiteSpace: "pre-wrap"
-                }}>
-                    {logs.length === 0 ? <p>No logs available.</p> : (
+                }}
+            >
+                <h2>📜 Logs</h2>
+                <div
+                    style={{
+                        height: "85%",
+                        overflowY: "auto",
+                        fontFamily: "monospace",
+                        whiteSpace: "pre-wrap",
+                    }}
+                >
+                    {logs.length === 0 ? (
+                        <p>No logs available.</p>
+                    ) : (
                         logs.map((log, index) => <p key={index}>{log}</p>)
                     )}
                 </div>
             </div>
-
         </div>
     );
 };

@@ -14,7 +14,7 @@ const app = express();
 const allowedOrigins = [
     "http://localhost:5173", // ✅ Frontend
     "http://localhost:5174", // ✅ Frontend
-    "http://localhost:3000", // ✅ Example: Bot Manager (or another service)
+    "http://localhost:8888", // ✅ Example: Bot Manager (or another service)
 ];
 
 app.use(cors({
