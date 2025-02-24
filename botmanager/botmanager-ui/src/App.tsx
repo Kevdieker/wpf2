@@ -20,17 +20,15 @@ const App: React.FC = () => {
     const [comment, setComment] = useState("");
     const [logs, setLogs] = useState<string[]>([]);
 
-    // Logs vom Botmanager alle 3 Sekunden abrufen
     useEffect(() => {
         const fetchLogs = () => {
             axios
                 .get("http://localhost:8888/logs")
                 .then((res) => {
-                    console.log("[APP] Logs received:", res.data);
                     setLogs(res.data.logs);
                 })
                 .catch((err) =>
-                    console.error("❌ [APP] Error fetching logs:", err.response?.data || err.message)
+                    console.error("[APP] Error fetching logs:", err.response?.data || err.message)
                 );
         };
 
@@ -44,11 +42,10 @@ const App: React.FC = () => {
         axios
             .get("http://localhost:8888/bots")
             .then((res) => {
-                console.log("[APP] Bots received:", res.data);
                 setBots(res.data);
             })
             .catch((err) =>
-                console.error("❌ [APP] Error fetching bots:", err.response?.data || err.message)
+                console.error("[APP] Error fetching bots:", err.response?.data || err.message)
             );
     }, []);
 
@@ -57,11 +54,10 @@ const App: React.FC = () => {
         axios
             .get("http://localhost:8888/videos")
             .then((res) => {
-                console.log("[APP] Videos received:", res.data);
                 setVideos(res.data);
             })
             .catch((err) =>
-                console.error("❌ [APP] Error fetching videos:", err.response?.data || err.message)
+                console.error("[APP] Error fetching videos:", err.response?.data || err.message)
             );
     }, []);
 
@@ -72,11 +68,10 @@ const App: React.FC = () => {
         axios
             .post("http://localhost:8888/bots/init", { count })
             .then((res) => {
-                console.log(`[APP] Created ${count} bots:`, res.data);
                 setBots(res.data);
             })
             .catch((err) =>
-                console.error("❌ [APP] Error creating bots:", err.response?.data || err.message)
+                console.error("[APP] Error creating bots:", err.response?.data || err.message)
             );
     };
 
@@ -87,18 +82,17 @@ const App: React.FC = () => {
             .post("http://localhost:8888/bots/like", { botId, videoId }, { withCredentials: true })
             .then(() => console.log(`[APP] Bot ${botId} liked video ${videoId}`))
             .catch((err) =>
-                console.error("❌ [APP] Error liking video:", err.response?.data || err.message)
+                console.error("[APP] Error liking video:", err.response?.data || err.message)
             );
     };
 
-    // Single Bot: Comment on Video – Anfrage über den Botmanager an KevTube
     const commentVideo = (botId: number) => {
         if (!videoId || !comment) return alert("Enter a video ID and comment!");
         axios
             .post("http://localhost:8888/bots/comment", { botId, videoId, comment }, { withCredentials: true })
             .then(() => console.log(`[APP] Bot ${botId} commented on video ${videoId}`))
             .catch((err) =>
-                console.error("❌ [APP] Error commenting on video:", err.response?.data || err.message)
+                console.error("[APP] Error commenting on video:", err.response?.data || err.message)
             );
     };
 
@@ -109,7 +103,7 @@ const App: React.FC = () => {
             .post("http://localhost:8888/bots/view", { videoId }, { withCredentials: true })
             .then(() => console.log(`[APP] Viewed video ${videoId}`))
             .catch((err) =>
-                console.error("❌ [APP] Error viewing video:", err.response?.data || err.message)
+                console.error("[APP] Error viewing video:", err.response?.data || err.message)
             );
     };
 
@@ -141,10 +135,9 @@ const App: React.FC = () => {
                         bot.id === botId ? { ...bot, active: !bot.active } : bot
                     )
                 );
-                console.log(`[APP] Toggled bot ${botId}`);
             })
             .catch((err) =>
-                console.error("❌ [APP] Error toggling bot:", err.response?.data || err.message)
+                console.error("[APP] Error toggling bot:", err.response?.data || err.message)
             );
     };
 
@@ -152,9 +145,8 @@ const App: React.FC = () => {
 
     return (
         <div style={{ display: "flex", height: "100vh", backgroundColor: "#fbfbfb" }}>
-            {/* LEFT: Main Bot Manager UI */}
             <div style={{ flex: 2, padding: "20px", fontFamily: "Arial" }}>
-                <h1>🤖 KevTube Botmanager</h1>
+                <h1>KevTube Botmanager</h1>
                 <button onClick={initBots}>➕ Init Bots</button>
 
                 <h2>Available Videos:</h2>

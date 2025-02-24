@@ -4,14 +4,14 @@
     "username": "user1",
     "email": "user1@example.com",
     "password": "password1",
-    "active": false
+    "active": true
   },
   {
     "id": 2,
     "username": "user2",
     "email": "user2@example.com",
     "password": "password2",
-    "active": false
+    "active": true
   },
   {
     "id": 3,
@@ -33,5 +33,12 @@
     "email": "bot5@example.com",
     "password": "password5",
     "active": false
+  },
+  {
+    "id": 7,
+    "username": "bot7",
+    "email": "bot7@example.com",
+    "password": "password7",
+    "active": true
   }
 ]
