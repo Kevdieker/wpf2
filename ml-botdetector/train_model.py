@@ -33,6 +33,12 @@ def main():
         action="store_true",
         help="Perform grid search for n_estimators and max_depth",
     )
+    parser.add_argument(
+        "--aggregate-users",
+        action="store_true",
+        help="Aggregate multiple tweets from the same user",
+    )
+
     args = parser.parse_args()
 
     if args.csv:
@@ -124,8 +130,18 @@ def main():
         "Username_Length",
         "Username_Digit_Ratio",
     ]
-    X = df[feature_cols]
-    y = df["Bot Label"]
+    X = df[feature_cols].copy()
+    y = df["Bot Label"].copy()
+
+    if args.aggregate_users:
+        df_feat = X.copy()
+        df_feat["Bot Label"] = y
+        df_feat["Username"] = df["Username"]
+        X = df_feat.groupby("Username")[feature_cols].mean()
+        y = (
+            df_feat.groupby("Username")["Bot Label"]
+            .agg(lambda s: s.mode().iat[0])
+        )
 
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=args.test_size, random_state=42
