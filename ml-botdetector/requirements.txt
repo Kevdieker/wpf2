@@ -4,3 +4,4 @@ scikit-learn
 kagglehub
 flasgger
 matplotlib
+textblob
