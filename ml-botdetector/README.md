@@ -10,13 +10,13 @@ pip install -r requirements.txt
 
 ## Training
 
-Run the training script to download the Kaggle dataset and train a `RandomForest` model. You can modify the number of trees or depth which also changes training time:
+Run the training script to download the Kaggle dataset and train a `RandomForest` model. You can modify the number of trees or depth which also changes training time. Metrics and charts are written to the `results/` directory:
 
 ```bash
 python train_model.py --n-estimators 300 --max-depth 10
 ```
 
-Metrics are printed and saved to `metrics.txt`. The trained model is written to `model.pkl` by default.
+Metrics are printed and saved to `results/metrics.txt`. The confusion matrix and feature importance charts are saved as PNG images in the same folder. The trained model is written to `results/model.pkl` by default.
 
 ## API
 

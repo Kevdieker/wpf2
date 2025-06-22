@@ -7,7 +7,7 @@ app = Flask(__name__)
 swagger = Swagger(app)
 
 # Load trained model
-with open('model.pkl', 'rb') as f:
+with open('results/model.pkl', 'rb') as f:
     model = pickle.load(f)
 
 FEATURES = ["Retweet Count", "Mention Count", "Follower Count", "Verified", "Tweet_Length", "Hashtag_Count"]

@@ -6,7 +6,8 @@ import pandas as pd
 import kagglehub
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import classification_report
+from sklearn.metrics import classification_report, confusion_matrix
+import matplotlib.pyplot as plt
 
 def main():
     parser = argparse.ArgumentParser(description="Train Twitter bot detection model")
@@ -15,7 +16,8 @@ def main():
     parser.add_argument("--max-depth", type=int, default=None, help="Max tree depth")
     parser.add_argument("--test-size", type=float, default=0.2, help="Fraction for test split")
     parser.add_argument("--model-out", default="model.pkl", help="Where to save the model")
-    parser.add_argument("--metrics-out", default="metrics.txt", help="Where to save metrics")
+    parser.add_argument("--metrics-out", default="metrics.txt", help="Filename for metrics text")
+    parser.add_argument("--results-dir", default="results", help="Directory for metrics and charts")
     args = parser.parse_args()
 
     if args.csv:
@@ -63,14 +65,46 @@ def main():
     print(report)
     print(f"Training time: {duration:.2f}s")
 
+    os.makedirs(args.results_dir, exist_ok=True)
+    model_path = os.path.join(args.results_dir, args.model_out)
+
     # Save model and metrics
-    with open(args.model_out, "wb") as f:
+    with open(model_path, "wb") as f:
         pickle.dump(model, f)
 
-    with open(args.metrics_out, "w") as f:
+    metrics_path = os.path.join(args.results_dir, args.metrics_out)
+    with open(metrics_path, "w") as f:
         f.write(report)
 
-    print(f"Model saved to {args.model_out}")
+    # Confusion matrix
+    cm = confusion_matrix(y_test, preds)
+    fig, ax = plt.subplots(figsize=(4, 4))
+    im = ax.imshow(cm, cmap="Blues")
+    ax.set_xlabel("Predicted")
+    ax.set_ylabel("True")
+    for i in range(cm.shape[0]):
+        for j in range(cm.shape[1]):
+            ax.text(j, i, cm[i, j], ha="center", va="center", color="black")
+    fig.colorbar(im, ax=ax)
+    plt.tight_layout()
+    cm_path = os.path.join(args.results_dir, "confusion_matrix.png")
+    fig.savefig(cm_path)
+    plt.close(fig)
+
+    # Feature importance
+    fig, ax = plt.subplots(figsize=(6, 4))
+    importances = model.feature_importances_
+    ax.barh(feature_cols, importances)
+    ax.set_xlabel("Importance")
+    plt.tight_layout()
+    fi_path = os.path.join(args.results_dir, "feature_importance.png")
+    fig.savefig(fi_path)
+    plt.close(fig)
+
+    print(f"Model saved to {model_path}")
+    print(f"Metrics saved to {metrics_path}")
+    print(f"Confusion matrix saved to {cm_path}")
+    print(f"Feature importance saved to {fi_path}")
 
 
 if __name__ == "__main__":
