@@ -23,7 +23,18 @@ videoRouter.get('/:id', async (req, res) => {
         if (isNaN(videoId)) {
             return res.status(400).json({ message: "Invalid video ID" });
         }
-        const video = await VideoService.getVideoById(videoId, userId);
+        let incrementView = true;
+        if (req.session) {
+            if (!req.session.viewedVideos) {
+                req.session.viewedVideos = [];
+            } else if (req.session.viewedVideos.includes(videoId)) {
+                incrementView = false;
+            } else {
+                req.session.viewedVideos.push(videoId);
+            }
+        }
+
+        const video = await VideoService.getVideoById(videoId, userId, incrementView);
 
         if (!video) {
             return res.status(404).json({ message: "Video not found" });

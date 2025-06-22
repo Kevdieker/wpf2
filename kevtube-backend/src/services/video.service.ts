@@ -19,17 +19,40 @@ export class VideoService {
             video.views
         ));
     }
-
-    static async getVideoById(videoId: number, userId: number | null): Promise<VideoToDetailspageDto | null> {
-        const video = await prisma.video.update({
-            where: { id: videoId },
-            data: { views: { increment: 1 } },
-            include: {
-                user: true,
-                comments: { include: { user: true } },
-                likedBy: true
+    static async getVideoById(
+        videoId: number,
+        userId: number | null,
+        incrementView = true
+    ): Promise<VideoToDetailspageDto | null> {
+        let video;
+        try {
+            if (incrementView) {
+                video = await prisma.video.update({
+                    where: { id: videoId },
+                    data: { views: { increment: 1 } },
+                    include: {
+                        user: true,
+                        comments: { include: { user: true } },
+                        likedBy: true
+                    }
+                });
+            } else {
+                video = await prisma.video.findUnique({
+                    where: { id: videoId },
+                    include: {
+                        user: true,
+                        comments: { include: { user: true } },
+                        likedBy: true
+                    }
+                });
             }
-        });
+    } catch (error: any) {
+        // Prisma throws a P2025 error when the record does not exist
+        if (error.code === 'P2025') {
+            return null;
+        }
+        throw error;
+    }
 
         if (!video) return null;
 
